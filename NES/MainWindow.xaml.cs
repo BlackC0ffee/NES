@@ -27,8 +27,13 @@ namespace NES
             OpenFileDialog ofd = new OpenFileDialog();
             if(ofd.ShowDialog() == true)
             {
+                string output = "";
                 Cartridge c = new Cartridge(ofd.FileName);
-                mainTextBlock.Text = c.CatridgePath;
+                for(int i = 0; i < 10; i++)
+                {
+                    output += c.ReadNextByte().ToString();
+                }
+                mainTextBlock.Text = output;
             }
         }
     }

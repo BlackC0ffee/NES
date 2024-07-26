@@ -10,12 +10,20 @@ namespace NES
     internal class Cartridge
     {
         private string catridgePath;
+        private BinaryReader reader;
 
         public Cartridge(string catridgePath)
         {
             this.catridgePath = catridgePath;
+            FileStream stream = new FileStream(catridgePath, FileMode.Open, FileAccess.Read);
+            reader = new BinaryReader(stream);
         }
 
-        public string CatridgePath { get => catridgePath; set => catridgePath = value; }
+        public string CatridgePath { get => catridgePath; }
+
+        public char ReadNextByte()
+        {
+            return Convert.ToChar(reader.ReadByte());
+        }
     }
 }
