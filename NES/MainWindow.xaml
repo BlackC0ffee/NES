@@ -14,7 +14,7 @@
             </MenuItem>
         </Menu>
         <StackPanel>
-            <TextBlock x:Name="mainTextBlock" TextWrapping="Wrap" Text="" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsEnabled="False"/>
+            <TextBlock x:Name="mainTextBlock" TextWrapping="Wrap" Text="" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsEnabled="False" FontFamily="Consolas" Margin="3,0,0,0"/>
         </StackPanel>
     </DockPanel>
     
