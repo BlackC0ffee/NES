@@ -14,6 +14,7 @@ namespace NES.CPU
 {
     internal interface IMOS6502
     {
+        void Reset();
         void ADC(); //add with carry
         void AND(); //and(with accumulator)
         void ASL(); //arithmetic shift left

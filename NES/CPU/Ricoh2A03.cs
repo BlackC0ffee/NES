@@ -1,13 +1,63 @@
-﻿using System;
+﻿using Microsoft.VisualBasic;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
 
 namespace NES.CPU
 {
     internal class Ricoh2A03 : NES.CPU.IMOS6502
     {
+        public Ricoh2A03() {
+            
+        }
+        public void Reset() { //Runs the reset program based on https://www.nesdev.org/wiki/Init_code
+            SEI(); // Ignore IRQs
+            CLC(); // Disable decimal mode
+            LDX("#$40");
+            STX("$4017"); // Disable APU frame IRQ
+            LDX("#$ff");
+            TXS(); // Set up stack
+            INX(); //now X = 0
+            STX("$2000"); // Disable NMI
+            STX("$2001"); // Disable rendering
+            STX("$4010"); // Disable DMC IRQs
+
+        /**@vblankwait1:
+            bit $2002
+    bpl @vblankwait1
+
+    ; We now have about 30,000 cycles to burn before the PPU stabilizes.
+    ; One thing we can do with this time is put RAM in a known state.
+    ; Here we fill it with $00, which matches what(say) a C compiler
+    ; expects for BSS.Conveniently, X is still 0.
+    txa
+@clrmem:
+    sta $000, x
+    sta $100, x
+    sta $200, x
+    sta $300, x
+    sta $400, x
+    sta $500, x
+    sta $600, x
+    sta $700, x
+    inx
+    bne @clrmem
+
+    ; Other things you can do between vblank waits are set up audio
+    ; or set up other mapper registers. 
+
+
+@vblankwait2:
+            bit $2002
+    bpl @vblankwait2 **/
+        }
         public void ADC() {
             throw new NotImplementedException();
         }

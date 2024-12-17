@@ -1,0 +1,1 @@
+See https://github.com/NovaSquirrel/NovaTheSquirrel/ for more info

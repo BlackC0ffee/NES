@@ -35,5 +35,9 @@ namespace NES
                 mainTextBlock.Text = output;
             }
         }
+
+        private void MenuItem_Click(object sender, RoutedEventArgs e) {
+
+        }
     }
 }
