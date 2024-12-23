@@ -10,6 +10,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using NES.Console;
+using System.Diagnostics;
 
 
 namespace NES
@@ -17,11 +18,12 @@ namespace NES
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
-    {
+    public partial class MainWindow : Window {
+        private NES.Console.Console console;
         public MainWindow()
         {
             InitializeComponent();
+            console = new NES.Console.Console();
         }
 
         private void MenuOpen_Click(object sender, RoutedEventArgs e)
@@ -37,7 +39,8 @@ namespace NES
         }
 
         private void MenuItem_Click(object sender, RoutedEventArgs e) {
-
+            console.Reset();
         }
+
     }
 }

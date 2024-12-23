@@ -12,7 +12,6 @@
     <Folder Include="Cartridge\" />
     <Folder Include="APU\" />
     <Folder Include="PPU\" />
-    <Folder Include="RAM\" />
   </ItemGroup>
 
 </Project>
