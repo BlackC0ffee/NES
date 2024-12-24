@@ -16,6 +16,10 @@ namespace NES.Console
         public void Reset() {
             cpu.Reset();
         }
+
+        internal void Demo() {
+            this.cpu.Demo();
+        }
     }
 
 }

@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Security.Policy;
@@ -28,15 +29,31 @@ namespace NES.CPU {
 
         public Ricoh2A03() {
             memory = new RAM.Memory();
+            sr = 0b00100000; // bit 5 has no name and is always set to 1
         }
+
+        internal void Demo() {
+            SEC();
+            SED();
+            SEI();
+            BRK();
+            Debug.WriteLine(Convert.ToString(sr, toBase: 2));
+            CLC();
+            Debug.WriteLine(Convert.ToString(sr, toBase: 2));
+            CLI();
+            Debug.WriteLine(Convert.ToString(sr, toBase: 2));
+            CLD();
+            Debug.WriteLine(Convert.ToString(sr, toBase: 2));
+        }
+
         public void Reset() { //Runs the reset program based on https://www.nesdev.org/wiki/Init_code
             //SEI(); // Ignore IRQs
             CLC(); // Disable decimal mode
-            //LDX("#$40");
-            //STX("$4017"); // Disable APU frame IRQ
-            //LDX("#$ff");
-            //TXS(); // Set up stack
-            //INX(); //now X = 0
+                   //LDX("#$40");
+                   //STX("$4017"); // Disable APU frame IRQ
+                   //LDX("#$ff");
+                   //TXS(); // Set up stack
+                   //INX(); //now X = 0
                    //STX("$2000"); // Disable NMI
                    //STX("$2001"); // Disable rendering
                    //STX("$4010"); // Disable DMC IRQs
@@ -70,6 +87,51 @@ namespace NES.CPU {
                 bit $2002
         bpl @vblankwait2 **/
         }
+
+        #region Status Register functions (sr)
+        // NV1B DIZC
+        // |||| ||||
+        // |||| |||+- Carry
+        // |||| ||+-- Zero
+        // |||| |+--- Interrupt Disable
+        // |||| +---- Decimal
+        // |||+------ Break
+        // ||+------- (No CPU effect; always pushed as 1)
+        // |+-------- Overflow
+        // +--------- Negative
+        public void SEC() { // Set the carry flag to 1
+            Byte mask = 0b00000001;
+            sr = (Byte)(sr ^ mask);
+        }
+        
+        public void CLC() { // Set the carry flag to 0
+            Byte mask = 0b11111110;
+            sr = (Byte)(sr & mask);
+        }
+
+        public void SEI() { // Set Interrupt Disable flag to 1
+            Byte mask = 0b00000100;
+            sr = (Byte)(sr ^ mask);
+        }
+        public void CLI() { // Set Interrupt Disable flag to 0
+            Byte mask = 0b11111011;
+            sr = (Byte)(sr & mask);
+        }
+
+        public void SED() { // Set Decimal Mode flag to 1
+            Byte mask = 0b00001000;
+            sr = (Byte)(sr ^ mask);
+        }
+        public void CLD() { // Set Decimal Mode flag to 0
+            Byte mask = 0b11110111;
+            sr = (Byte)(sr & mask);
+        }
+
+        public void BRK() { // Set the Break Command flag to 1
+            Byte mask = 0b00010000;
+            sr = (Byte)(sr ^ mask);
+        }
+        #endregion
         public void ADC() {
             throw new NotImplementedException();
         }
@@ -110,9 +172,7 @@ namespace NES.CPU {
             throw new NotImplementedException();
         }
 
-        public void BRK() {
-            throw new NotImplementedException();
-        }
+        
 
         public void BVC() {
             throw new NotImplementedException();
@@ -122,18 +182,11 @@ namespace NES.CPU {
             throw new NotImplementedException();
         }
 
-        public void CLC() { // Set the carry flag to 0 
-            Byte mask  = 0b11111110;
-            sr = (Byte)(sr & mask);
-        }
+        
 
-        public void CLD() {
-            throw new NotImplementedException();
-        }
+        
 
-        public void CLI() {
-            throw new NotImplementedException();
-        }
+
 
         public void CLV() {
             throw new NotImplementedException();
@@ -247,17 +300,11 @@ namespace NES.CPU {
             throw new NotImplementedException();
         }
 
-        public void SEC() {
-            throw new NotImplementedException();
-        }
+        
 
-        public void SED() {
-            throw new NotImplementedException();
-        }
 
-        public void SEI() {
-            throw new NotImplementedException();
-        }
+
+        
 
         public void STA() {
             throw new NotImplementedException();
@@ -294,5 +341,7 @@ namespace NES.CPU {
         public void TYA() {
             throw new NotImplementedException();
         }
+
+
     }
 }

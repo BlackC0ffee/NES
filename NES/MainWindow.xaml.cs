@@ -39,7 +39,8 @@ namespace NES
         }
 
         private void MenuItem_Click(object sender, RoutedEventArgs e) {
-            console.Reset();
+            //console.Reset();
+            console.Demo();
         }
 
     }
