@@ -46,8 +46,15 @@ namespace NES.CPU {
             Debug.WriteLine(Convert.ToString(sr, toBase: 2));
         }
 
+        public void ExecuteInstruction(int instruction) {
+            switch (instruction) {
+                case 0xa9: LDA(); break;
+                default: throw new NotImplementedException(); break;
+            }
+        }
+
         public void Reset() { //Runs the reset program based on https://www.nesdev.org/wiki/Init_code
-            //SEI(); // Ignore IRQs
+            SEI(); // Ignore IRQs
             CLC(); // Disable decimal mode
                    //LDX("#$40");
                    //STX("$4017"); // Disable APU frame IRQ

@@ -12,21 +12,34 @@ namespace NES.Console
 {
     internal class Cartridge
     {
-        private string catridgePath;
+        //private string catridgePath;
         private FileInfo catridgeFileInfo;
         private BinaryReader reader;
         private IDictionary romControl;
+        private NES.Cartridge.Header header { get; }
 
         public Cartridge(string catridgePath)
         {
-            this.catridgePath = catridgePath;
-            this.catridgeFileInfo = new FileInfo(catridgePath);
+            //this.catridgePath = catridgePath;
+            //this.catridgeFileInfo = new FileInfo(catridgePath);
             romControl = new Dictionary<string, bool>();
             FileStream stream = new FileStream(catridgePath, FileMode.Open, FileAccess.Read);
             reader = new BinaryReader(stream);
         }
 
-        public string CatridgePath { get => catridgePath; }
+        public Cartridge(FileInfo catridgeFileInfo)
+        {
+            this.catridgeFileInfo = catridgeFileInfo;
+            romControl = new Dictionary<string, bool>();
+            FileStream stream = new FileStream(catridgeFileInfo.FullName, FileMode.Open, FileAccess.Read);
+            reader = new BinaryReader(stream);
+
+            header = new NES.Cartridge.Header(reader.ReadBytes(16));
+            Debug.WriteLine(header.NumberOfPRGROMBanks.ToString());
+
+        }
+
+        //public string CatridgePath { get => catridgePath; }
 
         private static bool ReturnBit(byte b, int index)
         {
@@ -44,10 +57,10 @@ namespace NES.Console
         {
             Debug.WriteLine("Loading Catridge: " + catridgeFileInfo.Name);
             string localstring = "";
-            
+
             byte[] nes = new byte[3];
             reader.Read(nes, 0, 3);
-            if(Encoding.Default.GetString(nes) == "NES"){ Debug.WriteLine("iNES file identifier found"); } else { throw new Exception("iNES file identifier not found"); }
+            if (Encoding.Default.GetString(nes) == "NES") { Debug.WriteLine("iNES file identifier found"); } else { throw new Exception("iNES file identifier not found"); }
 
             nes = new byte[1];
             reader.Read(nes, 0, 1);

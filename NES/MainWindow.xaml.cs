@@ -23,7 +23,7 @@ namespace NES
         public MainWindow()
         {
             InitializeComponent();
-            console = new NES.Console.Console();
+            //console = new NES.Console.Console();
         }
 
         private void MenuOpen_Click(object sender, RoutedEventArgs e)
@@ -31,10 +31,11 @@ namespace NES
             OpenFileDialog ofd = new OpenFileDialog();
             if(ofd.ShowDialog() == true)
             {
-                string output = "";
-                Cartridge c = new NES.Console.Cartridge(ofd.FileName);
-                output += c.ReturnHeader();
-                mainTextBlock.Text = output;
+                //string output = "";
+                //Cartridge c = new NES.Console.Cartridge(ofd.FileName);
+                console = new NES.Console.Console(new System.IO.FileInfo(ofd.FileName));
+                //output += c.ReturnHeader();
+                //mainTextBlock.Text = output;
             }
         }
 
