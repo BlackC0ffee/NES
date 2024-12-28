@@ -36,13 +36,14 @@ namespace NES.Console
                     PRGROMBanks[i] = new NES.Cartridge.PRGROM(reader.ReadBytes(16384));
                 }
             }
+            
             if (this.Header.NumberOfCHRROMBanks > 0) {
                 this.CHRROMBanks = new NES.Cartridge.CHRROM[this.Header.NumberOfCHRROMBanks];
                 for (int i = 0; i < CHRROMBanks.Length; i++) {
                     CHRROMBanks[i] = new NES.Cartridge.CHRROM(reader.ReadBytes(8192));
                 }
             }
-            Debugger.Break();
+            if(this.reader.BaseStream.Position != this.reader.BaseStream.Length) { throw new Exception("Not all iNes data has been processed. More data can be found in the ROM") }
         }
     }
 }
