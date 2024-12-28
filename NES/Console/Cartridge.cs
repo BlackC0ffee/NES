@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NES.Cartridge;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -18,6 +19,7 @@ namespace NES.Console
         private IDictionary romControl;
         private NES.Cartridge.Header Header { get; }
         private NES.Cartridge.PRGROM[] PRGROMBanks { get; }
+        private NES.Cartridge.CHRROM[] CHRROMBanks { get; }
 
         public Cartridge(FileInfo catridgeFileInfo)
         {
@@ -34,6 +36,13 @@ namespace NES.Console
                     PRGROMBanks[i] = new NES.Cartridge.PRGROM(reader.ReadBytes(16384));
                 }
             }
+            if (this.Header.NumberOfCHRROMBanks > 0) {
+                this.CHRROMBanks = new NES.Cartridge.CHRROM[this.Header.NumberOfCHRROMBanks];
+                for (int i = 0; i < CHRROMBanks.Length; i++) {
+                    CHRROMBanks[i] = new NES.Cartridge.CHRROM(reader.ReadBytes(8192));
+                }
+            }
+            Debugger.Break();
         }
     }
 }
