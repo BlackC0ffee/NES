@@ -7,17 +7,20 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 
+// Important note! This only returns a INES v1 header. This header is deprecated 
 namespace NES.Cartridge {
     internal class Header {
         public int NumberOfPRGROMBanks { get; }
-        private int NumberOfCHRROMBanks { get; }
-        private bool VerticalMirrored { get; }
-        private bool BatteryBackedRam { get; }
-        private bool Trainer { get; }
-        private bool AlternativeNametableLayout { get; }
-        private bool VSUnisystem { get; }
-        private bool PlayChoice10 { get; }
-
+        public int NumberOfCHRROMBanks { get; }
+        public bool VerticalMirrored { get; }
+        public bool BatteryBackedRam { get; }
+        public bool Trainer { get; }
+        public bool AlternativeNametableLayout { get; }
+        public bool VSUnisystem { get; }
+        public bool PlayChoice10 { get; }
+        public int InesVersion { get; }
+        public int PRGRAMsize { get; }
+        public bool PAL { get; }
 
         public Header(byte[] header) {
             // Header validation
@@ -40,6 +43,13 @@ namespace NES.Cartridge {
             //Flag 7
             this.VSUnisystem = ReturnBit(header[7], 0); //VS Unisystem
             this.PlayChoice10 = ReturnBit(header[7], 1); //PlayChoice-10 (8 KB of Hint Screen data stored after CHR data)
+            this.InesVersion = ((header[7] >> 2) & 0x03); // If equal to 2, flags 8-15 are in NES 2.0 format
+
+            //Flag 8
+            this.PRGRAMsize = header[8]; // PRG RAM size
+
+            //Flag 9
+            this.PAL = ReturnBit(header[7], 0); //TV system (0: NTSC; 1: PAL)
 
         }
 
