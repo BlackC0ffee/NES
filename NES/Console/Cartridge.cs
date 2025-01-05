@@ -43,7 +43,7 @@ namespace NES.Console
                     CHRROMBanks[i] = new NES.Cartridge.CHRROM(reader.ReadBytes(8192));
                 }
             }
-            if(this.reader.BaseStream.Position != this.reader.BaseStream.Length) { throw new Exception("Not all iNes data has been processed. More data can be found in the ROM") }
+            if(this.reader.BaseStream.Position != this.reader.BaseStream.Length) { throw new Exception("Not all iNes data has been processed. More data can be found in the ROM"); }
         }
     }
 }

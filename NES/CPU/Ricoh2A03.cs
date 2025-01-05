@@ -30,6 +30,7 @@ namespace NES.CPU {
         public Ricoh2A03() {
             memory = new RAM.Memory();
             sr = 0b00100000; // bit 5 has no name and is always set to 1
+            
         }
 
         internal void Demo() {
@@ -48,7 +49,10 @@ namespace NES.CPU {
 
         public void ExecuteInstruction(int instruction) {
             switch (instruction) {
+                case 0x00: BRK(); break;
+                case 0x01: ORA(); break;
                 case 0xa9: LDA(); break;
+
                 default: throw new NotImplementedException(); break;
             }
         }
@@ -139,8 +143,27 @@ namespace NES.CPU {
             sr = (Byte)(sr ^ mask);
         }
         #endregion
-        public void ADC() {
-            throw new NotImplementedException();
+        public void ADC(NES.CPU.AddressingMode addressingMode, Byte Operand) {
+            switch (addressingMode) {
+                case AddressingMode.Immediate:
+                    break;
+                case AddressingMode.ZeroPage:
+                    break;
+                case AddressingMode.ZeroPageX:
+                    break;
+                case AddressingMode.Absolute:
+                    break;
+                case AddressingMode.AbsoluteX:
+                    break;
+                case AddressingMode.AbsoluteY:
+                    break;
+                case AddressingMode.XIndirect:
+                    break;
+                case AddressingMode.IndirectY:
+                    break;
+                default:
+                    throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
+            }
         }
 
         public void AND() {
@@ -188,12 +211,6 @@ namespace NES.CPU {
         public void BVS() {
             throw new NotImplementedException();
         }
-
-        
-
-        
-
-
 
         public void CLV() {
             throw new NotImplementedException();

@@ -12,10 +12,24 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace NES.CPU
 {
+    public enum AddressingMode { //https://wiki.cdot.senecapolytechnic.ca/wiki/6502_Addressing_Modes#:~:text=The%206502%20processor%20has%2013%20Addressing%20Modes%2C%20which,load%20the%20accumulator%20from%20memory%20address%200x8005%20%2832773%29.
+        Accumulator,
+        Absolute,
+        AbsoluteX,
+        AbsoluteY,
+        Immediate,
+        Implied,
+        Indirect,
+        XIndirect,
+        IndirectY,
+        Relative,
+        ZeroPage,
+        ZeroPageX
+    }
     internal interface IMOS6502
     {
         void Reset();
-        void ADC(); //add with carry
+        void ADC(NES.CPU.AddressingMode addressingMode, Byte Operand); //add with carry
         void AND(); //and(with accumulator)
         void ASL(); //arithmetic shift left
         void BCC(); //branch on carry clear
