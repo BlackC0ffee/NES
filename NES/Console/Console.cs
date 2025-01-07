@@ -15,8 +15,9 @@ namespace NES.Console
 
 
         public Console(System.IO.FileInfo cartridgeFileInfo) {
-            this.cpu = new CPU.Ricoh2A03();
-            this.cartridge = new Cartridge(cartridgeFileInfo);
+            this.cartridge = new Cartridge(cartridgeFileInfo); // first load console. If succesfull we can "start" the console
+            this.cpu = new CPU.Ricoh2A03(cartridge);
+            
         }
         public void Reset() {
             cpu.Reset();

@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace NES.RAM {
     internal class Memory {
-        private Byte[] _data;
+        internal Byte[] Data {  get; set; }
         public Memory() {
-            _data = new Byte[2048];
+            this.Data = new Byte[2048];
         }
     }
 }

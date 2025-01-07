@@ -14,19 +14,19 @@ namespace NES.Console
     internal class Cartridge
     {
         //private string catridgePath;
-        private FileInfo catridgeFileInfo;
-        private BinaryReader reader;
-        private IDictionary romControl;
-        private NES.Cartridge.Header Header { get; }
-        private NES.Cartridge.PRGROM[] PRGROMBanks { get; }
-        private NES.Cartridge.CHRROM[] CHRROMBanks { get; }
+        private FileInfo cartridgeFileInfo;
+        //private BinaryReader reader; 
+        //private IDictionary romControl;
+        internal NES.Cartridge.Header Header { get; }
+        internal NES.Cartridge.PRGROM[] PRGROMBanks { get; }
+        internal NES.Cartridge.CHRROM[] CHRROMBanks { get; }
 
-        public Cartridge(FileInfo catridgeFileInfo)
+        public Cartridge(FileInfo cartridgeFileInfo)
         {
-            this.catridgeFileInfo = catridgeFileInfo;
-            romControl = new Dictionary<string, bool>();
-            FileStream stream = new FileStream(catridgeFileInfo.FullName, FileMode.Open, FileAccess.Read);
-            reader = new BinaryReader(stream);
+            this.cartridgeFileInfo = cartridgeFileInfo;
+            IDictionary romControl = new Dictionary<string, bool>();
+            FileStream stream = new FileStream(cartridgeFileInfo.FullName, FileMode.Open, FileAccess.Read);
+            BinaryReader reader = new BinaryReader(stream);
 
             Header = new NES.Cartridge.Header(reader.ReadBytes(16));
 
@@ -43,7 +43,9 @@ namespace NES.Console
                     CHRROMBanks[i] = new NES.Cartridge.CHRROM(reader.ReadBytes(8192));
                 }
             }
-            if(this.reader.BaseStream.Position != this.reader.BaseStream.Length) { throw new Exception("Not all iNes data has been processed. More data can be found in the ROM"); }
+            if(reader.BaseStream.Position != reader.BaseStream.Length) { throw new Exception("Not all iNes data has been processed. More data can be found in the ROM"); }
+            // Cartridge loaded succesfull we can start the console
+            
         }
     }
 }

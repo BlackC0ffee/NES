@@ -5,11 +5,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Xaml.Schema;
 
 namespace NES.CPU {
     internal class Ricoh2A03 : NES.CPU.IMOS6502 {
@@ -20,17 +22,27 @@ namespace NES.CPU {
         //     http://www.6502.org/users/obelisk/6502/reference.html
         
         // Registers
-        private Int16 pc; // program counter
+        private UInt16 pc; // 16bit or 2 byte program counter. Technically these are 2 seperate program counters on the IMOS6502: https://stackoverflow.com/questions/46646929/how-do-the-two-program-counter-registers-work-in-the-6502
         private Byte ac; // accumulator
         private Byte x; // X register
         private Byte y; // Y register
         private Byte sr; // status register [NV-BDIZC]
         private Byte sp; // stack pointer
 
-        public Ricoh2A03() {
+        // Variables
+        private NES.Console.Cartridge cartridge;
+        private NES.Cartridge.PRGROM currentPRGROMBank;
+
+        private bool brk; // temporary boolean we will use during programming
+
+        public Ricoh2A03(NES.Console.Cartridge cartridge) {
+            this.cartridge = cartridge;
             memory = new RAM.Memory();
             sr = 0b00100000; // bit 5 has no name and is always set to 1
-            
+            this.Reset();
+
+            brk = false;
+            this.Run();
         }
 
         internal void Demo() {
@@ -51,8 +63,11 @@ namespace NES.CPU {
             switch (instruction) {
                 case 0x00: BRK(); break;
                 case 0x01: ORA(); break;
+                case 0x78: SEI(); break;
+                case 0x8e: STX(AddressingMode.Absolute); break;
+                case 0xa2: LDX(AddressingMode.Immediate); break;
                 case 0xa9: LDA(); break;
-
+                case 0xd8: CLD(); break;
                 default: throw new NotImplementedException(); break;
             }
         }
@@ -97,6 +112,21 @@ namespace NES.CPU {
 @vblankwait2:
                 bit $2002
         bpl @vblankwait2 **/
+            pc = 0;
+        }
+
+        public void Run() {
+            this.currentPRGROMBank = this.cartridge.PRGROMBanks[0]; // Load the first bank
+            while (!brk){
+                ExecuteInstruction(currentPRGROMBank.Data[pc]);
+
+                // to check Status Register functions operand bytes
+
+                //do {
+                //    pc = 65535;
+                //    pc++;
+                //} while (pc < 65535); Should never happen I think thanks to bank switching...
+            }
         }
 
         #region Status Register functions (sr)
@@ -118,11 +148,13 @@ namespace NES.CPU {
         public void CLC() { // Set the carry flag to 0
             Byte mask = 0b11111110;
             sr = (Byte)(sr & mask);
+            pc++;
         }
 
         public void SEI() { // Set Interrupt Disable flag to 1
             Byte mask = 0b00000100;
             sr = (Byte)(sr ^ mask);
+            pc++;
         }
         public void CLI() { // Set Interrupt Disable flag to 0
             Byte mask = 0b11111011;
@@ -136,6 +168,7 @@ namespace NES.CPU {
         public void CLD() { // Set Decimal Mode flag to 0
             Byte mask = 0b11110111;
             sr = (Byte)(sr & mask);
+            pc++;
         }
 
         public void BRK() { // Set the Break Command flag to 1
@@ -202,8 +235,6 @@ namespace NES.CPU {
             throw new NotImplementedException();
         }
 
-        
-
         public void BVC() {
             throw new NotImplementedException();
         }
@@ -268,8 +299,27 @@ namespace NES.CPU {
             throw new NotImplementedException();
         }
 
-        public void LDX() {
-            throw new NotImplementedException();
+        public void LDX(NES.CPU.AddressingMode addressingMode) {
+            switch (addressingMode) {
+                case AddressingMode.Immediate:
+                    this.x = currentPRGROMBank.Data[++pc]; // Load next byte into x register
+                    break;
+                case AddressingMode.ZeroPage:
+                    throw new NotImplementedException();
+                    break;
+                case AddressingMode.ZeroPageY:
+                    throw new NotImplementedException();
+                    break;
+                case AddressingMode.Absolute:
+                    throw new NotImplementedException();
+                    break;
+                case AddressingMode.AbsoluteY:
+                    throw new NotImplementedException();
+                    break;
+                default:
+                    throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
+            }
+            pc++; //Move to the programm counter to the next instruction
         }
 
         public void LDY() {
@@ -324,18 +374,27 @@ namespace NES.CPU {
             throw new NotImplementedException();
         }
 
-        
-
-
-
-        
-
         public void STA() {
             throw new NotImplementedException();
         }
 
-        public void STX() {
-            throw new NotImplementedException();
+        public void STX(NES.CPU.AddressingMode addressingMode) {
+            switch (addressingMode) {
+                case AddressingMode.ZeroPage:
+                    throw new NotImplementedException();
+                    break;
+                case AddressingMode.ZeroPageX:
+                    throw new NotImplementedException();
+                    break;
+                case AddressingMode.Absolute:
+                    int MemoryAddress = this.currentPRGROMBank.Data[++pc] << 8 | this.currentPRGROMBank.Data[++pc]; //needs to become STX $4017 So little indian
+                    throw new NotImplementedException();
+                    this.memory.Data[MemoryAddress] = this.x;
+                    break;
+                default:
+                    throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
+            }
+            pc++; //Move to the programm counter to the next instruction
         }
 
         public void STY() {
@@ -365,7 +424,6 @@ namespace NES.CPU {
         public void TYA() {
             throw new NotImplementedException();
         }
-
 
     }
 }

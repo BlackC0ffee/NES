@@ -24,7 +24,8 @@ namespace NES.CPU
         IndirectY,
         Relative,
         ZeroPage,
-        ZeroPageX
+        ZeroPageX,
+        ZeroPageY
     }
     internal interface IMOS6502
     {
@@ -59,7 +60,7 @@ namespace NES.CPU
         void JMP(); //jump
         void JSR(); //jump subroutine
         void LDA(); //load accumulator
-        void LDX(); //load X
+        void LDX(NES.CPU.AddressingMode addressingMode); //load X
         void LDY(); //load Y
         void LSR(); //logical shift right
         void NOP(); //no operation
@@ -77,7 +78,7 @@ namespace NES.CPU
         void SED(); //set decimal
         void SEI(); //set interrupt disable
         void STA(); //store accumulator
-        void STX(); //store X
+        void STX(NES.CPU.AddressingMode addressingMode); //store X
         void STY(); //store Y
         void TAX(); //transfer accumulator to X
         void TAY(); //transfer accumulator to Y
