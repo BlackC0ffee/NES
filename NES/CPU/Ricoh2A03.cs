@@ -387,8 +387,7 @@ namespace NES.CPU {
                     throw new NotImplementedException();
                     break;
                 case AddressingMode.Absolute:
-                    int MemoryAddress = this.currentPRGROMBank.Data[++pc] << 8 | this.currentPRGROMBank.Data[++pc]; //needs to become STX $4017 So little indian
-                    throw new NotImplementedException();
+                    int MemoryAddress = this.currentPRGROMBank.Data[++pc] | (this.currentPRGROMBank.Data[++pc] << 8);
                     this.memory.Data[MemoryAddress] = this.x;
                     break;
                 default:
