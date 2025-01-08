@@ -7,9 +7,16 @@ using System.Threading.Tasks;
 
 namespace NES.RAM {
     internal class Memory {
-        internal Byte[] Data {  get; set; }
+        private Byte[] RAM { get; set; }
         public Memory() {
-            this.Data = new Byte[2048];
+            this.RAM = new Byte[2048];
+        }
+
+        public int this[int index] {
+            get {
+                return 10;
+            }
+            set { }
         }
     }
 }

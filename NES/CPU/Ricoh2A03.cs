@@ -29,6 +29,8 @@ namespace NES.CPU {
         private Byte sr; // status register [NV-BDIZC]
         private Byte sp; // stack pointer
 
+        private NES.CPU.CPUMemoryMap cPUMemoryMap;
+
         // Variables
         private NES.Console.Cartridge cartridge;
         private NES.Cartridge.PRGROM currentPRGROMBank;
@@ -38,6 +40,7 @@ namespace NES.CPU {
         public Ricoh2A03(NES.Console.Cartridge cartridge) {
             this.cartridge = cartridge;
             memory = new RAM.Memory();
+            cPUMemoryMap = new CPUMemoryMap();
             sr = 0b00100000; // bit 5 has no name and is always set to 1
             this.Reset();
 
@@ -388,7 +391,8 @@ namespace NES.CPU {
                     break;
                 case AddressingMode.Absolute:
                     int MemoryAddress = this.currentPRGROMBank.Data[++pc] | (this.currentPRGROMBank.Data[++pc] << 8);
-                    this.memory.Data[MemoryAddress] = this.x;
+                    this.cPUMemoryMap[MemoryAddress] = this.x;
+                    //this.memory.Data[MemoryAddress] = this.x;
                     break;
                 default:
                     throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
