@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Reflection.PortableExecutable;
 using System.Runtime.Intrinsics.Arm;
@@ -62,6 +63,22 @@ namespace NES.Cartridge {
             //More info: https://en.wikipedia.org/wiki/Bitwise_operation
             //Final note, this is using LSb (so we cound index from right to left)
             return (b & 1 << index) != 0;
+        }
+
+        public override string ToString() {
+            string output = "";
+            output += "NumberOfPRGROMBanks: " + NumberOfPRGROMBanks + System.Environment.NewLine;
+            output += "NumberOfCHRROMBanks: " + NumberOfCHRROMBanks + System.Environment.NewLine;
+            output += "VerticalMirrored: " + VerticalMirrored + System.Environment.NewLine;
+            output += "BatteryBackedRam: " + BatteryBackedRam + System.Environment.NewLine;
+            output += "Trainer: " + Trainer + System.Environment.NewLine;
+            output += "AlternativeNametableLayout: " + AlternativeNametableLayout + System.Environment.NewLine;
+            output += "VSUnisystem: " + VSUnisystem + System.Environment.NewLine;
+            output += "PlayChoice10: " + PlayChoice10 + System.Environment.NewLine;
+            output += "InesVersion: " + InesVersion + System.Environment.NewLine;
+            output += "PRGRAMsize: " + PRGRAMsize + System.Environment.NewLine;
+            output += "PAL: " + PAL + System.Environment.NewLine;
+            return output;
         }
     }
 }

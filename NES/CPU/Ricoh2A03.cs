@@ -33,14 +33,14 @@ namespace NES.CPU {
 
         // Variables
         private NES.Console.Cartridge cartridge;
-        private NES.Cartridge.PRGROM currentPRGROMBank;
+        
 
         private bool brk; // temporary boolean we will use during programming
 
         public Ricoh2A03(NES.Console.Cartridge cartridge) {
             this.cartridge = cartridge;
             memory = new RAM.Memory();
-            cPUMemoryMap = new CPUMemoryMap();
+            cPUMemoryMap = new CPUMemoryMap(this.cartridge);
             sr = 0b00100000; // bit 5 has no name and is always set to 1
             this.Reset();
 
@@ -115,13 +115,13 @@ namespace NES.CPU {
 @vblankwait2:
                 bit $2002
         bpl @vblankwait2 **/
-            pc = 0;
+            pc = (ushort)(this.cPUMemoryMap[0xfffc] | (this.cPUMemoryMap[0xfffd] << 8));
+                //cPUMemoryMap[0xfffc];
         }
 
         public void Run() {
-            this.currentPRGROMBank = this.cartridge.PRGROMBanks[0]; // Load the first bank
             while (!brk){
-                ExecuteInstruction(currentPRGROMBank.Data[pc]);
+                ExecuteInstruction(cPUMemoryMap[pc]);
 
                 // to check Status Register functions operand bytes
 
@@ -305,7 +305,7 @@ namespace NES.CPU {
         public void LDX(NES.CPU.AddressingMode addressingMode) {
             switch (addressingMode) {
                 case AddressingMode.Immediate:
-                    this.x = currentPRGROMBank.Data[++pc]; // Load next byte into x register
+                    this.x = cPUMemoryMap[++pc]; // Load next byte into x register
                     break;
                 case AddressingMode.ZeroPage:
                     throw new NotImplementedException();
@@ -390,9 +390,9 @@ namespace NES.CPU {
                     throw new NotImplementedException();
                     break;
                 case AddressingMode.Absolute:
-                    int MemoryAddress = this.currentPRGROMBank.Data[++pc] | (this.currentPRGROMBank.Data[++pc] << 8);
-                    this.cPUMemoryMap[MemoryAddress] = this.x;
-                    //this.memory.Data[MemoryAddress] = this.x;
+                    //int MemoryAddress = this.currentPRGROMBank.Data[++pc] | (this.currentPRGROMBank.Data[++pc] << 8);
+                    //this.cPUMemoryMap[MemoryAddress] = this.x;
+                    throw new NotImplementedException();
                     break;
                 default:
                     throw new ArgumentException($"Invalid addressing mode: {addressingMode}");

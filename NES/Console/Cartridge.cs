@@ -29,6 +29,7 @@ namespace NES.Console
             BinaryReader reader = new BinaryReader(stream);
 
             Header = new NES.Cartridge.Header(reader.ReadBytes(16));
+            Debug.Write(Header.ToString());
 
             if (this.Header.Trainer) { throw  new NotImplementedException(); } else {
                 PRGROMBanks = new NES.Cartridge.PRGROM[this.Header.NumberOfPRGROMBanks];
