@@ -72,6 +72,7 @@ namespace NES.CPU {
                 case 0xa2: LDX(AddressingMode.Immediate); break;
                 case 0xa9: LDA(); break;
                 case 0xd8: CLD(); break;
+                case 0xe8: INX(); break;
                 default: throw new NotImplementedException($"Instruction with opcode {instruction:X} not found"); break;
             }
             pc++; //increment program counter at the end of the cycle
@@ -285,7 +286,8 @@ namespace NES.CPU {
         }
 
         public void INX() {
-            throw new NotImplementedException();
+            Debug.WriteLine($"${this.pc:X}: INX");
+            this.x++;
         }
 
         public void INY() {
