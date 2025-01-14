@@ -74,6 +74,7 @@ namespace NES.CPU {
                 case 0xd8: CLD(); break;
                 default: throw new NotImplementedException($"Instruction with opcode {instruction:X} not found"); break;
             }
+            pc++; //increment program counter at the end of the cycle
         }
 
         public void Reset() { //Runs the reset program based on https://www.nesdev.org/wiki/Init_code
@@ -152,14 +153,12 @@ namespace NES.CPU {
         public void CLC() { // Set the carry flag to 0
             Byte mask = 0b11111110;
             sr = (Byte)(sr & mask);
-            pc++;
         }
 
         public void SEI() { // Set Interrupt Disable flag to 1
             Debug.WriteLine($"${this.pc:X}: SEI");
             Byte mask = 0b00000100;
             sr = (Byte)(sr ^ mask);
-            pc++;
         }
         public void CLI() { // Set Interrupt Disable flag to 0
             Debug.WriteLine($"${this.pc:X}: CLI");
@@ -175,7 +174,6 @@ namespace NES.CPU {
             Debug.WriteLine($"${this.pc:X}: CLD");
             Byte mask = 0b11110111;
             sr = (Byte)(sr & mask);
-            pc++;
         }
 
         public void BRK() { // Set the Break Command flag to 1
@@ -327,7 +325,6 @@ namespace NES.CPU {
                 default:
                     throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
             }
-            pc++; //Move to the programm counter to the next instruction
         }
 
         public void LDY() {
@@ -402,7 +399,6 @@ namespace NES.CPU {
                 default:
                     throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
             }
-            pc++; //Move to the programm counter to the next instruction
         }
 
         public void STY() {
@@ -428,7 +424,6 @@ namespace NES.CPU {
         public void TXS() {
             Debug.WriteLine($"${this.pc:X}: TXS");
             this.sp = this.x;
-            pc++;
         }
 
         public void TYA() {
