@@ -15,7 +15,7 @@ using System.Xaml.Schema;
 
 namespace NES.CPU {
     internal class Ricoh2A03 : NES.CPU.IMOS6502 {
-        private NES.RAM.Memory memory;
+        //private NES.RAM.Memory memory;
 
         // Instruction set shizzle
         //     https://www.masswerk.at/6502/6502_instruction_set.html
@@ -39,7 +39,6 @@ namespace NES.CPU {
 
         public Ricoh2A03(NES.Console.Cartridge cartridge) {
             this.cartridge = cartridge;
-            memory = new RAM.Memory();
             cPUMemoryMap = new CPUMemoryMap(this.cartridge);
             sr = 0b00100000; // bit 5 has no name and is always set to 1
             this.Reset();
