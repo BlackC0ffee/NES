@@ -62,7 +62,7 @@ namespace NES.CPU {
                         break;
                     case >= 0x4000 and <= 0x401f:
                         //Input / Output registers
-                        throw new NotImplementedException();
+                        StoreInCartridgeSpace(index, value);
                         break;
                     default: throw new IndexOutOfRangeException();
                 }
@@ -71,6 +71,12 @@ namespace NES.CPU {
 
         private void StoreInRam(int index, int value) {
             throw new NotImplementedException();
+        }
+
+        private void StoreInCartridgeSpace(int index, Byte value) {
+            int address = index - 0x4000;
+            if (address < 0 || address > 0xFFFF) { throw new IndexOutOfRangeException(); }
+            this.CartridgeSpace[address] = value;
         }
     }
 }

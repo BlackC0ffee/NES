@@ -309,7 +309,7 @@ namespace NES.CPU {
             switch (addressingMode) {
                 case AddressingMode.Immediate:
                     Debug.WriteLine($"${this.pc:X}: LDX #{cPUMemoryMap[++pc]:X}");
-this.x = cPUMemoryMap[pc]; // Load next byte into x register
+                    this.x = cPUMemoryMap[pc]; // Load next byte into x register
                     break;
                 case AddressingMode.ZeroPage:
                     throw new NotImplementedException();
@@ -394,9 +394,9 @@ this.x = cPUMemoryMap[pc]; // Load next byte into x register
                     throw new NotImplementedException();
                     break;
                 case AddressingMode.Absolute:
-                    //int MemoryAddress = this.currentPRGROMBank.Data[++pc] | (this.currentPRGROMBank.Data[++pc] << 8);
-                    //this.cPUMemoryMap[MemoryAddress] = this.x;
-                    throw new NotImplementedException();
+                    int MemoryAddress = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
+                    Debug.WriteLine($"${this.pc:X}: STX ${MemoryAddress:X}");
+                    this.cPUMemoryMap[MemoryAddress] = this.x;
                     break;
                 default:
                     throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
