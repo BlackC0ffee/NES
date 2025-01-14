@@ -68,10 +68,11 @@ namespace NES.CPU {
                 case 0x01: ORA(); break;
                 case 0x78: SEI(); break;
                 case 0x8e: STX(AddressingMode.Absolute); break;
+                case 0x9a: TXS(); break;
                 case 0xa2: LDX(AddressingMode.Immediate); break;
                 case 0xa9: LDA(); break;
                 case 0xd8: CLD(); break;
-                default: throw new NotImplementedException(); break;
+                default: throw new NotImplementedException($"Instruction with opcode {instruction:X} not found"); break;
             }
         }
 
@@ -425,7 +426,9 @@ namespace NES.CPU {
         }
 
         public void TXS() {
-            throw new NotImplementedException();
+            Debug.WriteLine($"${this.pc:X}: TXS");
+            this.sp = this.x;
+            pc++;
         }
 
         public void TYA() {
