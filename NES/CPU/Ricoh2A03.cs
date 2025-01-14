@@ -155,11 +155,13 @@ namespace NES.CPU {
         }
 
         public void SEI() { // Set Interrupt Disable flag to 1
+            Debug.WriteLine($"${this.pc:X}: SEI");
             Byte mask = 0b00000100;
             sr = (Byte)(sr ^ mask);
             pc++;
         }
         public void CLI() { // Set Interrupt Disable flag to 0
+            Debug.WriteLine($"${this.pc:X}: CLI");
             Byte mask = 0b11111011;
             sr = (Byte)(sr & mask);
         }
@@ -169,6 +171,7 @@ namespace NES.CPU {
             sr = (Byte)(sr ^ mask);
         }
         public void CLD() { // Set Decimal Mode flag to 0
+            Debug.WriteLine($"${this.pc:X}: CLD");
             Byte mask = 0b11110111;
             sr = (Byte)(sr & mask);
             pc++;
@@ -305,7 +308,8 @@ namespace NES.CPU {
         public void LDX(NES.CPU.AddressingMode addressingMode) {
             switch (addressingMode) {
                 case AddressingMode.Immediate:
-                    this.x = cPUMemoryMap[++pc]; // Load next byte into x register
+                    Debug.WriteLine($"${this.pc:X}: LDX #{cPUMemoryMap[++pc]:X}");
+this.x = cPUMemoryMap[pc]; // Load next byte into x register
                     break;
                 case AddressingMode.ZeroPage:
                     throw new NotImplementedException();
