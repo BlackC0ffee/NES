@@ -36,7 +36,7 @@ namespace NES.CPU
         void BCC(); //branch on carry clear
         void BCS(); //branch on carry set
         void BEQ(); //branch on equal(zero set)
-        void BIT(); //bit test
+        void BIT(NES.CPU.AddressingMode addressingMode); //bit test
         void BMI(); //branch on minus(negative set)
         void BNE(); //branch on not equal(zero clear)
         void BPL(); //branch on plus(negative clear)

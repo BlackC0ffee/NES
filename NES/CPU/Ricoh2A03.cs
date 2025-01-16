@@ -61,10 +61,11 @@ namespace NES.CPU {
             Debug.WriteLine(Convert.ToString(sr, toBase: 2));
         }
 
-        public void ExecuteInstruction(int instruction) {
-            switch (instruction) {
+        public void ExecuteInstruction(int opcodes) {
+            switch (opcodes) {
                 case 0x00: BRK(); break;
                 case 0x01: ORA(); break;
+                case 0x2c: BIT(AddressingMode.Absolute); break;
                 case 0x78: SEI(); break;
                 case 0x8e: STX(AddressingMode.Absolute); break;
                 case 0x9a: TXS(); break;
@@ -72,7 +73,7 @@ namespace NES.CPU {
                 case 0xa9: LDA(); break;
                 case 0xd8: CLD(); break;
                 case 0xe8: INX(); break;
-                default: throw new NotImplementedException($"Instruction with opcode {instruction:X} not found"); break;
+                default: throw new NotImplementedException($"Instruction with opcode {opcodes:X} not found"); break;
             }
             pc++; //increment program counter at the end of the cycle
         }
@@ -224,8 +225,21 @@ namespace NES.CPU {
             throw new NotImplementedException();
         }
 
-        public void BIT() {
-            throw new NotImplementedException();
+        public void BIT(NES.CPU.AddressingMode addressingMode) {
+            switch (addressingMode) {
+                case AddressingMode.ZeroPage:
+                    throw new NotImplementedException();
+                    break;
+                case AddressingMode.Absolute:
+                    int memoryAddress = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
+                    Debug.WriteLine($"${this.pc:X}: BIT ${memoryAddress:X}");
+                    Byte operand = cPUMemoryMap[memoryAddress];
+                    if((this.ac & operand) == 0) { SetZero(); }
+                    this.sp = (Byte)(operand | 0b11000000); // this prforms a bit and operator. Could be buggy 
+                    break;
+                default:
+                    throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
+            }
         }
 
         public void BMI() {
@@ -429,6 +443,12 @@ namespace NES.CPU {
 
         public void TYA() {
             throw new NotImplementedException();
+        }
+
+        //Helper Functions
+        void SetZero() {
+            Byte mask = 0b0000010;
+            this.sr = (Byte)(this.sr | mask);
         }
 
     }

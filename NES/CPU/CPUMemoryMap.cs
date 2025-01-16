@@ -40,6 +40,8 @@ namespace NES.CPU {
         public Byte this[int index] {
             get {
                 switch (index) {
+                    case >= 0x2000 and <= 0x2007:
+                        return this.PPURegisters[index - 0x2000];
                     case >= 0x8000 and <= 0xBFFF:
                         return this.currentPRGROMBank.Data[index + (~0x8000 + 1)]; 
                     case 0xfffc:
@@ -58,7 +60,7 @@ namespace NES.CPU {
                         break;
                     case >= 0x2000 and <= 0x2007:
                         //Input / Output registers
-                        throw new NotImplementedException();
+                        StoreInPPURegisters(index, value);
                         break;
                     case >= 0x4000 and <= 0x401f:
                         //Input / Output registers
@@ -77,6 +79,12 @@ namespace NES.CPU {
             int address = index - 0x4000;
             if (address < 0 || address > 0xFFFF) { throw new IndexOutOfRangeException(); }
             this.CartridgeSpace[address] = value;
+        }
+
+        private void StoreInPPURegisters(int index, Byte value) {
+            int address = index - 0x2000;
+            if (address < 0 || address > 0x7) { throw new IndexOutOfRangeException(); }
+            this.PPURegisters[address] = value;
         }
     }
 }
