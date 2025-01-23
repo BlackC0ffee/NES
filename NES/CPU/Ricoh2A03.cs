@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Security.Policy;
@@ -65,7 +66,9 @@ namespace NES.CPU {
             switch (opcodes) {
                 case 0x00: BRK(); break;
                 case 0x01: ORA(); break;
+                case 0x10: BPL(); break;
                 case 0x2c: BIT(AddressingMode.Absolute); break;
+                case 0x4c: JMP(AddressingMode.Absolute); break;
                 case 0x78: SEI(); break;
                 case 0x8e: STX(AddressingMode.Absolute); break;
                 case 0x9a: TXS(); break;
@@ -235,7 +238,7 @@ namespace NES.CPU {
                     Debug.WriteLine($"${this.pc:X}: BIT ${memoryAddress:X}");
                     Byte operand = cPUMemoryMap[memoryAddress];
                     if((this.ac & operand) == 0) { SetZero(); }
-                    this.sp = (Byte)(operand | 0b11000000); // this prforms a bit and operator. Could be buggy 
+                    this.sp = (Byte)(operand | 0b11000000); // this checks bit 7 and 6 and place the overflow and negatuve flag. (I don't really understand why, so this could be buggy) 
                     break;
                 default:
                     throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
@@ -251,6 +254,12 @@ namespace NES.CPU {
         }
 
         public void BPL() {
+            sbyte operand = (sbyte)this.cPUMemoryMap[++pc];
+            Debug.WriteLine($"${this.pc:X}: BPL ${operand:X}");
+
+            if ((this.sr & 0b100000) == 0) {
+
+            }
             throw new NotImplementedException();
         }
 
@@ -307,8 +316,19 @@ namespace NES.CPU {
             throw new NotImplementedException();
         }
 
-        public void JMP() {
-            throw new NotImplementedException();
+        public void JMP(NES.CPU.AddressingMode addressingMode) {
+            switch (addressingMode) {
+                case AddressingMode.Absolute:
+                    int operAnd = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
+                    Debug.WriteLine($"${this.pc:X}: JMP ${cPUMemoryMap[++pc]:X}");
+                    this.pc = (Byte)(operAnd - 1);
+                    break;
+                case AddressingMode.Indirect:
+                    throw new NotImplementedException();
+                    break;
+                default:
+                    throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
+            }
         }
 
         public void JSR() {

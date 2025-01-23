@@ -57,7 +57,7 @@ namespace NES.CPU
         void INC(); //increment
         void INX(); //increment X
         void INY(); //increment Y
-        void JMP(); //jump
+        void JMP(NES.CPU.AddressingMode addressingMode); //jump
         void JSR(); //jump subroutine
         void LDA(); //load accumulator
         void LDX(NES.CPU.AddressingMode addressingMode); //load X
