@@ -30,6 +30,8 @@ namespace NES.CPU {
         private Byte sr; // status register [NV-BDIZC]
         private Byte sp; // stack pointer
 
+        private ulong CpuCycleCounter;
+
         private NES.CPU.CPUMemoryMap cPUMemoryMap;
 
         // Variables
@@ -42,9 +44,10 @@ namespace NES.CPU {
             this.cartridge = cartridge;
             cPUMemoryMap = new CPUMemoryMap(this.cartridge);
             sr = 0b00100000; // bit 5 has no name and is always set to 1
-            this.Reset();
-
+            //this.Reset();
+            CpuCycleCounter = 0;
             brk = false;
+            pc = (ushort)(this.cPUMemoryMap[0xfffc] | (this.cPUMemoryMap[0xfffd] << 8)); // Mapper 0
             this.Run();
         }
 
@@ -152,37 +155,44 @@ namespace NES.CPU {
         public void SEC() { // Set the carry flag to 1
             Byte mask = 0b00000001;
             sr = (Byte)(sr ^ mask);
+            this.CpuCycleCounter += 2;
         }
         
         public void CLC() { // Set the carry flag to 0
             Byte mask = 0b11111110;
             sr = (Byte)(sr & mask);
+            this.CpuCycleCounter += 2;
         }
 
         public void SEI() { // Set Interrupt Disable flag to 1
             Debug.WriteLine($"${this.pc:X}: SEI");
             Byte mask = 0b00000100;
             sr = (Byte)(sr ^ mask);
+            this.CpuCycleCounter += 2;
         }
         public void CLI() { // Set Interrupt Disable flag to 0
             Debug.WriteLine($"${this.pc:X}: CLI");
             Byte mask = 0b11111011;
             sr = (Byte)(sr & mask);
+            this.CpuCycleCounter += 2;
         }
 
         public void SED() { // Set Decimal Mode flag to 1
             Byte mask = 0b00001000;
             sr = (Byte)(sr ^ mask);
+            this.CpuCycleCounter += 2;
         }
         public void CLD() { // Set Decimal Mode flag to 0
             Debug.WriteLine($"${this.pc:X}: CLD");
             Byte mask = 0b11110111;
             sr = (Byte)(sr & mask);
+            this.CpuCycleCounter += 2;
         }
 
         public void BRK() { // Set the Break Command flag to 1
             Byte mask = 0b00010000;
             sr = (Byte)(sr ^ mask);
+            this.CpuCycleCounter += 7;
         }
         #endregion
         public void ADC(NES.CPU.AddressingMode addressingMode, Byte Operand) {
@@ -239,6 +249,7 @@ namespace NES.CPU {
                     Byte operand = cPUMemoryMap[memoryAddress];
                     if((this.ac & operand) == 0) { SetZero(); }
                     this.sp = (Byte)(operand | 0b11000000); // this checks bit 7 and 6 and place the overflow and negatuve flag. (I don't really understand why, so this could be buggy) 
+                    this.CpuCycleCounter += 4;
                     break;
                 default:
                     throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
@@ -257,10 +268,11 @@ namespace NES.CPU {
             sbyte operand = (sbyte)this.cPUMemoryMap[++pc];
             Debug.WriteLine($"${this.pc:X}: BPL ${operand:X}");
 
-            if ((this.sr & 0b100000) == 0) {
-
+            if ((this.sr & 0b10000000) == 0) {
+                pc = (ushort)(pc + operand);
+                this.CpuCycleCounter++;
             }
-            throw new NotImplementedException();
+            this.CpuCycleCounter += 2;
         }
 
         public void BVC() {
@@ -310,6 +322,7 @@ namespace NES.CPU {
         public void INX() {
             Debug.WriteLine($"${this.pc:X}: INX");
             this.x++;
+            this.CpuCycleCounter += 2;
         }
 
         public void INY() {
@@ -322,6 +335,7 @@ namespace NES.CPU {
                     int operAnd = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
                     Debug.WriteLine($"${this.pc:X}: JMP ${cPUMemoryMap[++pc]:X}");
                     this.pc = (Byte)(operAnd - 1);
+                    this.CpuCycleCounter += 3;
                     break;
                 case AddressingMode.Indirect:
                     throw new NotImplementedException();
@@ -344,6 +358,7 @@ namespace NES.CPU {
                 case AddressingMode.Immediate:
                     Debug.WriteLine($"${this.pc:X}: LDX #{cPUMemoryMap[++pc]:X}");
                     this.x = cPUMemoryMap[pc]; // Load next byte into x register
+                    this.CpuCycleCounter += 2;
                     break;
                 case AddressingMode.ZeroPage:
                     throw new NotImplementedException();
@@ -430,6 +445,7 @@ namespace NES.CPU {
                     int MemoryAddress = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
                     Debug.WriteLine($"${this.pc:X}: STX ${MemoryAddress:X}");
                     this.cPUMemoryMap[MemoryAddress] = this.x;
+                    this.CpuCycleCounter += 4;
                     break;
                 default:
                     throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
@@ -459,6 +475,7 @@ namespace NES.CPU {
         public void TXS() {
             Debug.WriteLine($"${this.pc:X}: TXS");
             this.sp = this.x;
+            this.CpuCycleCounter += 2;
         }
 
         public void TYA() {
