@@ -73,7 +73,9 @@ namespace NES.CPU {
                 case 0x2c: BIT(AddressingMode.Absolute); break;
                 case 0x4c: JMP(AddressingMode.Absolute); break;
                 case 0x78: SEI(); break;
+                case 0x8a: TXA(); break;
                 case 0x8e: STX(AddressingMode.Absolute); break;
+                case 0x95: STA(AddressingMode.ZeroPage); break;
                 case 0x9a: TXS(); break;
                 case 0xa2: LDX(AddressingMode.Immediate); break;
                 case 0xa9: LDA(); break;
@@ -273,6 +275,12 @@ namespace NES.CPU {
                 this.CpuCycleCounter++;
             }
             this.CpuCycleCounter += 2;
+
+            //Small hack to prevent bootloop at start
+            if (this.CpuCycleCounter >= 50) {
+                Byte mask = 0b10000000;
+                sr = (Byte)(sr ^ mask);
+            }
         }
 
         public void BVC() {
@@ -429,8 +437,35 @@ namespace NES.CPU {
             throw new NotImplementedException();
         }
 
-        public void STA() {
-            throw new NotImplementedException();
+        public void STA(NES.CPU.AddressingMode addressingMode) {
+            switch (addressingMode) {
+                case AddressingMode.ZeroPage:
+                    int operAnd = this.cPUMemoryMap[++pc];
+                    Debug.WriteLine($"${this.pc:X}: STA ${operAnd:X}");
+                    cPUMemoryMap[(0b00000000 | operAnd)] = ac;
+                    CpuCycleCounter += 3;
+                    break;
+                case AddressingMode.ZeroPageX:
+                    throw new NotImplementedException();
+                    break;
+                case AddressingMode.Absolute:
+                    throw new NotImplementedException();
+                    break;
+                case AddressingMode.AbsoluteX:
+                    throw new NotImplementedException();
+                    break;
+                case AddressingMode.AbsoluteY:
+                    throw new NotImplementedException();
+                    break;
+                case AddressingMode.XIndirect:
+                    throw new NotImplementedException();
+                    break;
+                case AddressingMode.IndirectY:
+                    throw new NotImplementedException();
+                    break;
+                default:
+                    throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
+            }
         }
 
         public void STX(NES.CPU.AddressingMode addressingMode) {
@@ -469,7 +504,8 @@ namespace NES.CPU {
         }
 
         public void TXA() {
-            throw new NotImplementedException();
+            this.ac = this.x;
+            this.CpuCycleCounter += 2;
         }
 
         public void TXS() {

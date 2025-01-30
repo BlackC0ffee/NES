@@ -77,7 +77,7 @@ namespace NES.CPU
         void SEC(); //set carry
         void SED(); //set decimal
         void SEI(); //set interrupt disable
-        void STA(); //store accumulator
+        void STA(NES.CPU.AddressingMode addressingMode); //store accumulator
         void STX(NES.CPU.AddressingMode addressingMode); //store X
         void STY(); //store Y
         void TAX(); //transfer accumulator to X

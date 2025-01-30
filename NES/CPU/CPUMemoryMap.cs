@@ -71,8 +71,8 @@ namespace NES.CPU {
             }
         }
 
-        private void StoreInRam(int index, int value) {
-            throw new NotImplementedException();
+        private void StoreInRam(int index, Byte value) {
+            RAM[index] = value;
         }
 
         private void StoreInCartridgeSpace(int index, Byte value) {
