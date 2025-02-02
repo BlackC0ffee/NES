@@ -54,7 +54,7 @@ namespace NES.CPU {
             }
             set {
                 switch(index){
-                    case 0x00 and <= 0x07FF:
+                    case >= 0x00 and <= 0x07FF:
                         //Write to RAM
                         StoreInRam(index, value);
                         break;
