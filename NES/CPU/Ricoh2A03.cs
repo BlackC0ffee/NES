@@ -80,6 +80,7 @@ namespace NES.CPU {
                 case 0x9a: TXS(); break;
                 case 0xa2: LDX(AddressingMode.Immediate); break;
                 case 0xa9: LDA(); break;
+                case 0xb0: BCS(); break;
                 case 0xd8: CLD(); break;
                 case 0xe8: INX(); break;
                 default: throw new NotImplementedException($"Instruction with opcode {opcodes:X} not found"); break;
@@ -234,7 +235,14 @@ namespace NES.CPU {
         }
 
         public void BCS() {
-            throw new NotImplementedException();
+            sbyte operand = (sbyte)this.cPUMemoryMap[++pc];
+            Debug.WriteLine($"${this.pc:X}: BCS ${operand:X}");
+            if ((this.sr & 0b00000001) == 1) {
+                pc = (ushort)(pc + operand);
+                this.CpuCycleCounter++;
+            }
+            this.CpuCycleCounter += 2;
+
         }
 
         public void BEQ() {
