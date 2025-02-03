@@ -59,7 +59,7 @@ namespace NES.CPU
         void INY(); //increment Y
         void JMP(NES.CPU.AddressingMode addressingMode); //jump
         void JSR(); //jump subroutine
-        void LDA(); //load accumulator
+        void LDA(NES.CPU.AddressingMode addressingMode); //load accumulator
         void LDX(NES.CPU.AddressingMode addressingMode); //load X
         void LDY(); //load Y
         void LSR(); //logical shift right

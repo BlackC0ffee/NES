@@ -372,8 +372,37 @@ namespace NES.CPU {
             throw new NotImplementedException();
         }
 
-        public void LDA() {
-            throw new NotImplementedException();
+        public void LDA(NES.CPU.AddressingMode addressingMode) {
+            switch (addressingMode) {
+                case AddressingMode.Immediate:
+                    Byte operAnd = this.cPUMemoryMap[++pc];
+                    Debug.WriteLine($"${this.pc:X}: LDA ${cPUMemoryMap[++pc]:X}");
+                    this.ac = operAnd;
+                    break;
+                case AddressingMode.ZeroPage:
+                    throw new NotImplementedException();
+                    break;
+                case AddressingMode.ZeroPageX:
+                    throw new NotImplementedException();
+                    break;
+                case AddressingMode.Absolute:
+                    throw new NotImplementedException();
+                    break;
+                case AddressingMode.AbsoluteX:
+                    throw new NotImplementedException();
+                    break;
+                case AddressingMode.AbsoluteY:
+                    throw new NotImplementedException();
+                    break;
+                case AddressingMode.XIndirect:
+                    throw new NotImplementedException();
+                    break;
+                case AddressingMode.IndirectY:
+                    throw new NotImplementedException();
+                    break;
+                default:
+                    throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
+            }
         }
 
         public void LDX(NES.CPU.AddressingMode addressingMode) {
