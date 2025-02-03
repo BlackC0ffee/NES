@@ -79,7 +79,7 @@ namespace NES.CPU {
                 case 0x9d: STA(AddressingMode.AbsoluteX); break;
                 case 0x9a: TXS(); break;
                 case 0xa2: LDX(AddressingMode.Immediate); break;
-                case 0xa9: LDA(); break;
+                case 0xa9: LDA(AddressingMode.Immediate); break;
                 case 0xb0: BCS(); break;
                 case 0xd0: BNE(); break;
                 case 0xd8: CLD(); break;
@@ -274,7 +274,7 @@ namespace NES.CPU {
         public void BNE() {
             sbyte operand = (sbyte)this.cPUMemoryMap[++pc];
             Debug.WriteLine($"${this.pc:X}: BNE ${operand:X}");
-            if ((this.sr & 0b00000010) == 1) {
+            if ((this.sr & 0b00000010) == 0) {
                 pc = (ushort)(pc + operand);
                 this.CpuCycleCounter++;
             }
@@ -376,8 +376,9 @@ namespace NES.CPU {
             switch (addressingMode) {
                 case AddressingMode.Immediate:
                     Byte operAnd = this.cPUMemoryMap[++pc];
-                    Debug.WriteLine($"${this.pc:X}: LDA ${cPUMemoryMap[++pc]:X}");
+                    Debug.WriteLine($"${this.pc:X}: LDA ${operAnd:X}");
                     this.ac = operAnd;
+                    this.CpuCycleCounter += 2;
                     break;
                 case AddressingMode.ZeroPage:
                     throw new NotImplementedException();
