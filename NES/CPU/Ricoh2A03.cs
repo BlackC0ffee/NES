@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Numerics;
+using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Security.Policy;
 using System.Text;
@@ -66,6 +67,7 @@ namespace NES.CPU {
         }
 
         public void ExecuteInstruction(int opcodes) {
+            Debug.Write($"${this.pc:X}: "); // Writes the current Programcounter
             switch (opcodes) {
                 case 0x00: BRK(); break;
                 case 0x01: ORA(); break;
@@ -529,6 +531,8 @@ namespace NES.CPU {
         }
 
         public void STX(NES.CPU.AddressingMode addressingMode) {
+            Debug.Write("STX ");
+            int operAnd;
             switch (addressingMode) {
                 case AddressingMode.ZeroPage:
                     throw new NotImplementedException();
@@ -537,15 +541,17 @@ namespace NES.CPU {
                     throw new NotImplementedException();
                     break;
                 case AddressingMode.Absolute:
-                    int MemoryAddress = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
-                    Debug.WriteLine($"${this.pc:X}: STX ${MemoryAddress:X}");
-                    this.cPUMemoryMap[MemoryAddress] = this.x;
+                    operAnd = Absolute();
+                    this.cPUMemoryMap[operAnd] = this.x;
                     this.CpuCycleCounter += 4;
                     break;
                 default:
                     throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
+
             }
         }
+
+
 
         public void STY() {
             throw new NotImplementedException();
@@ -584,5 +590,10 @@ namespace NES.CPU {
             this.sr = (Byte)(this.sr | mask);
         }
 
+        private int Absolute() {
+            int operand = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
+            Debug.WriteLine($"${operand:X}");
+            return operand;
+        }
     }
 }
