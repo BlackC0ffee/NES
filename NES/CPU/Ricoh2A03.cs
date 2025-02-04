@@ -74,6 +74,7 @@ namespace NES.CPU {
                 case 0x4c: JMP(AddressingMode.Absolute); break;
                 case 0x78: SEI(); break;
                 case 0x8a: TXA(); break;
+                case 0x8d: STA(AddressingMode.Absolute); break;
                 case 0x8e: STX(AddressingMode.Absolute); break;
                 case 0x95: STA(AddressingMode.ZeroPage); break;
                 case 0x9d: STA(AddressingMode.AbsoluteX); break;
@@ -483,9 +484,10 @@ namespace NES.CPU {
         }
 
         public void STA(NES.CPU.AddressingMode addressingMode) {
+            int operAnd;
             switch (addressingMode) {
                 case AddressingMode.ZeroPage:
-                    int operAnd = this.cPUMemoryMap[++pc];
+                    operAnd = this.cPUMemoryMap[++pc];
                     Debug.WriteLine($"${this.pc:X}: STA ${operAnd:X}");
                     cPUMemoryMap[(0b00000000 | operAnd)] = ac;
                     this.CpuCycleCounter += 3;
@@ -494,13 +496,16 @@ namespace NES.CPU {
                     throw new NotImplementedException();
                     break;
                 case AddressingMode.Absolute:
-                    throw new NotImplementedException();
+                    operAnd = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
+                    Debug.WriteLine($"${this.pc:X}: STX ${operAnd:X}");
+                    this.cPUMemoryMap[operAnd] = this.ac;
+                    this.CpuCycleCounter += 4;
                     break;
                 case AddressingMode.AbsoluteX:
-                    int instruction = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
-                    Debug.WriteLine($"${this.pc:X}: STA ${instruction:X},X");
-                    int opperAnd = instruction + this.x;
-                    cPUMemoryMap[opperAnd] = this.ac;
+                    operAnd = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
+                    Debug.WriteLine($"${this.pc:X}: STA ${operAnd:X},X");
+                    int effectiveAddress = operAnd + this.x;
+                    cPUMemoryMap[effectiveAddress] = this.ac;
                     this.CpuCycleCounter += 5;
                     break;
                 case AddressingMode.AbsoluteY:
