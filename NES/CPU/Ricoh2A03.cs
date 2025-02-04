@@ -73,6 +73,7 @@ namespace NES.CPU {
                 case 0x2c: BIT(AddressingMode.Absolute); break;
                 case 0x4c: JMP(AddressingMode.Absolute); break;
                 case 0x78: SEI(); break;
+                case 0x85: STA(AddressingMode.ZeroPage); break;
                 case 0x8a: TXA(); break;
                 case 0x8d: STA(AddressingMode.Absolute); break;
                 case 0x8e: STX(AddressingMode.Absolute); break;
@@ -81,6 +82,7 @@ namespace NES.CPU {
                 case 0x9a: TXS(); break;
                 case 0xa2: LDX(AddressingMode.Immediate); break;
                 case 0xa9: LDA(AddressingMode.Immediate); break;
+                case 0xad: LDA(AddressingMode.Absolute); break;
                 case 0xb0: BCS(); break;
                 case 0xd0: BNE(); break;
                 case 0xd8: CLD(); break;
@@ -374,10 +376,11 @@ namespace NES.CPU {
         }
 
         public void LDA(NES.CPU.AddressingMode addressingMode) {
+            Byte operAnd;
             switch (addressingMode) {
                 case AddressingMode.Immediate:
-                    Byte operAnd = this.cPUMemoryMap[++pc];
-                    Debug.WriteLine($"${this.pc:X}: LDA ${operAnd:X}");
+                    operAnd = this.cPUMemoryMap[++pc];
+                    Debug.WriteLine($"${this.pc:X}: LDA #{operAnd:X}");
                     this.ac = operAnd;
                     this.CpuCycleCounter += 2;
                     break;
@@ -388,7 +391,10 @@ namespace NES.CPU {
                     throw new NotImplementedException();
                     break;
                 case AddressingMode.Absolute:
-                    throw new NotImplementedException();
+                    operAnd = this.cPUMemoryMap[++pc];
+                    Debug.WriteLine($"${this.pc:X}: LDA ${operAnd:X}");
+                    this.ac = cPUMemoryMap[operAnd];
+                    this.CpuCycleCounter += 4;
                     break;
                 case AddressingMode.AbsoluteX:
                     throw new NotImplementedException();
