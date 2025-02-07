@@ -381,12 +381,11 @@ namespace NES.CPU {
 
         public void LDA(NES.CPU.AddressingMode addressingMode) {
             Debug.Write("LDA ");
-            int operAnd;
+            int operand;
             switch (addressingMode) {
                 case AddressingMode.Immediate:
-                    Debug.WriteLine($"${this.pc:X}: LDA #{++pc:X}");
-                    //operAnd = this.cPUMemoryMap[++pc];
-                    this.ac = this.cPUMemoryMap[pc];
+                    operand = Immediate();
+                    this.ac = (Byte)operand;
                     this.CpuCycleCounter += 2;
                     break;
                 case AddressingMode.ZeroPage:
@@ -396,8 +395,8 @@ namespace NES.CPU {
                     throw new NotImplementedException();
                     break;
                 case AddressingMode.Absolute:
-                    operAnd = Absolute();
-                    this.ac = cPUMemoryMap[operAnd];
+                    operand = Absolute();
+                    this.ac = cPUMemoryMap[operand];
                     this.CpuCycleCounter += 4;
                     break;
                 case AddressingMode.AbsoluteX:
@@ -418,10 +417,11 @@ namespace NES.CPU {
         }
 
         public void LDX(NES.CPU.AddressingMode addressingMode) {
+            int operand;
             switch (addressingMode) {
                 case AddressingMode.Immediate:
-                    Debug.WriteLine($"${this.pc:X}: LDX #{cPUMemoryMap[++pc]:X}");
-                    this.x = cPUMemoryMap[pc]; // Load next byte into x register
+                    operand = Immediate();
+                    this.x = (Byte)operand; // Load next byte into x register
                     this.CpuCycleCounter += 2;
                     break;
                 case AddressingMode.ZeroPage:
@@ -511,9 +511,8 @@ namespace NES.CPU {
                     this.CpuCycleCounter += 4;
                     break;
                 case AddressingMode.AbsoluteX:
-                    operand = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
-                    int effectiveAddress = operand + this.x;
-                    cPUMemoryMap[effectiveAddress] = this.ac;
+                    operand = AbsoluteX();
+                    cPUMemoryMap[operand] = this.ac;
                     this.CpuCycleCounter += 5;
                     break;
                 case AddressingMode.AbsoluteY:
@@ -592,13 +591,25 @@ namespace NES.CPU {
 
         private int Absolute() {
             int operand = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
-            Debug.WriteLine($"${operand:X}");
+            Debug.WriteLine($"${operand:X4}");
+            return operand;
+        }
+
+        private int AbsoluteX() {
+            int operand =this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
+            Debug.WriteLine($"${operand:X4},X");
+            return operand + this.x;
+        }
+
+        private int Immediate() {
+            int operand = cPUMemoryMap[++pc];
+            Debug.WriteLine($"#{operand:X2}");
             return operand;
         }
 
         private int ZeroPage() {
             int operand = this.cPUMemoryMap[++pc];
-            Debug.WriteLine($"${operand:X}");
+            Debug.WriteLine($"${operand:X2}");
             return (0b00000000 | operand);
         }
         #endregion
