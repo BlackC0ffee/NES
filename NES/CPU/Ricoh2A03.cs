@@ -495,25 +495,24 @@ namespace NES.CPU {
 
         public void STA(NES.CPU.AddressingMode addressingMode) {
             Debug.Write("STA ");
-            int operAnd;
+            int operand;
             switch (addressingMode) {
                 case AddressingMode.ZeroPage:
-                    operAnd = this.cPUMemoryMap[++pc];
-                    Debug.WriteLine($"${this.pc:X}: STA ${operAnd:X}");
-                    cPUMemoryMap[(0b00000000 | operAnd)] = ac;
+                    operand = ZeroPage();
+                    cPUMemoryMap[operand] = ac;
                     this.CpuCycleCounter += 3;
                     break;
                 case AddressingMode.ZeroPageX:
                     throw new NotImplementedException();
                     break;
                 case AddressingMode.Absolute:
-                    operAnd = Absolute();
-                    this.cPUMemoryMap[operAnd] = this.ac;
+                    operand = Absolute();
+                    this.cPUMemoryMap[operand] = this.ac;
                     this.CpuCycleCounter += 4;
                     break;
                 case AddressingMode.AbsoluteX:
-                    operAnd = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
-                    int effectiveAddress = operAnd + this.x;
+                    operand = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
+                    int effectiveAddress = operand + this.x;
                     cPUMemoryMap[effectiveAddress] = this.ac;
                     this.CpuCycleCounter += 5;
                     break;
@@ -585,7 +584,7 @@ namespace NES.CPU {
             throw new NotImplementedException();
         }
 
-        //Helper Functions
+        #region Helper Functions
         void SetZero() {
             Byte mask = 0b0000010;
             this.sr = (Byte)(this.sr | mask);
@@ -596,5 +595,12 @@ namespace NES.CPU {
             Debug.WriteLine($"${operand:X}");
             return operand;
         }
+
+        private int ZeroPage() {
+            int operand = this.cPUMemoryMap[++pc];
+            Debug.WriteLine($"${operand:X}");
+            return (0b00000000 | operand);
+        }
+        #endregion
     }
 }
