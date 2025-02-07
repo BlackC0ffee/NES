@@ -163,49 +163,54 @@ namespace NES.CPU {
         // |+-------- Overflow
         // +--------- Negative
         public void SEC() { // Set the carry flag to 1
+            Debug.WriteLine("SEC");
             Byte mask = 0b00000001;
             sr = (Byte)(sr ^ mask);
             this.CpuCycleCounter += 2;
         }
         
         public void CLC() { // Set the carry flag to 0
+            Debug.WriteLine("CLC");
             Byte mask = 0b11111110;
             sr = (Byte)(sr & mask);
             this.CpuCycleCounter += 2;
         }
 
         public void SEI() { // Set Interrupt Disable flag to 1
-            Debug.WriteLine($"${this.pc:X}: SEI");
+            Debug.WriteLine("SEI");
             Byte mask = 0b00000100;
             sr = (Byte)(sr ^ mask);
             this.CpuCycleCounter += 2;
         }
         public void CLI() { // Set Interrupt Disable flag to 0
-            Debug.WriteLine($"${this.pc:X}: CLI");
+            Debug.WriteLine("CLI");
             Byte mask = 0b11111011;
             sr = (Byte)(sr & mask);
             this.CpuCycleCounter += 2;
         }
 
         public void SED() { // Set Decimal Mode flag to 1
+            Debug.WriteLine("SED");
             Byte mask = 0b00001000;
             sr = (Byte)(sr ^ mask);
             this.CpuCycleCounter += 2;
         }
         public void CLD() { // Set Decimal Mode flag to 0
-            Debug.WriteLine($"${this.pc:X}: CLD");
+            Debug.WriteLine("CLD");
             Byte mask = 0b11110111;
             sr = (Byte)(sr & mask);
             this.CpuCycleCounter += 2;
         }
 
         public void BRK() { // Set the Break Command flag to 1
+            Debug.WriteLine("BRK");
             Byte mask = 0b00010000;
             sr = (Byte)(sr ^ mask);
             this.CpuCycleCounter += 7;
         }
         #endregion
         public void ADC(NES.CPU.AddressingMode addressingMode, Byte Operand) {
+            Debug.WriteLine("ADC ");
             switch (addressingMode) {
                 case AddressingMode.Immediate:
                     break;
@@ -241,8 +246,8 @@ namespace NES.CPU {
         }
 
         public void BCS() {
-            sbyte operand = (sbyte)this.cPUMemoryMap[++pc];
-            Debug.WriteLine($"${this.pc:X}: BCS ${operand:X}");
+            Debug.Write("BCS ");
+            int operand = Relative();
             if ((this.sr & 0b00000001) == 1) {
                 pc = (ushort)(pc + operand);
                 this.CpuCycleCounter++;
@@ -278,8 +283,8 @@ namespace NES.CPU {
         }
 
         public void BNE() {
-            sbyte operand = (sbyte)this.cPUMemoryMap[++pc];
-            Debug.WriteLine($"${this.pc:X}: BNE ${operand:X}");
+            Debug.Write("BNE ");
+            int operand = Relative();
             if ((this.sr & 0b00000010) == 0) {
                 pc = (ushort)(pc + operand);
                 this.CpuCycleCounter++;
@@ -288,9 +293,8 @@ namespace NES.CPU {
         }
 
         public void BPL() {
-            sbyte operand = (sbyte)this.cPUMemoryMap[++pc];
-            Debug.WriteLine($"${this.pc:X}: BPL ${operand:X}");
-
+            Debug.Write("BPL ");
+            int operand = Relative();
             if ((this.sr & 0b10000000) == 0) {
                 pc = (ushort)(pc + operand);
                 this.CpuCycleCounter++;
@@ -349,7 +353,7 @@ namespace NES.CPU {
         }
 
         public void INX() {
-            Debug.WriteLine($"${this.pc:X}: INX");
+            Debug.WriteLine("INX");
             this.x++;
             this.CpuCycleCounter += 2;
         }
@@ -360,11 +364,11 @@ namespace NES.CPU {
 
         public void JMP(NES.CPU.AddressingMode addressingMode) {
             Debug.Write("JMP ");
-            int operAnd;
+            int operand;
             switch (addressingMode) {
                 case AddressingMode.Absolute:
-                    operAnd = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
-                    this.pc = (Byte)(operAnd - 1);
+                    operand = Absolute();
+                    this.pc = (Byte)(operand - 1);
                     this.CpuCycleCounter += 3;
                     break;
                 case AddressingMode.Indirect:
@@ -417,6 +421,7 @@ namespace NES.CPU {
         }
 
         public void LDX(NES.CPU.AddressingMode addressingMode) {
+            Debug.Write("LDX ");
             int operand;
             switch (addressingMode) {
                 case AddressingMode.Immediate:
@@ -569,12 +574,13 @@ namespace NES.CPU {
         }
 
         public void TXA() {
+            Debug.WriteLine("TXA");
             this.ac = this.x;
             this.CpuCycleCounter += 2;
         }
 
         public void TXS() {
-            Debug.WriteLine($"${this.pc:X}: TXS");
+            Debug.WriteLine("TXS");
             this.sp = this.x;
             this.CpuCycleCounter += 2;
         }
@@ -604,6 +610,12 @@ namespace NES.CPU {
         private int Immediate() {
             int operand = cPUMemoryMap[++pc];
             Debug.WriteLine($"#{operand:X2}");
+            return operand;
+        }
+
+        private int Relative() {
+            sbyte operand = (sbyte)this.cPUMemoryMap[++pc];
+            Debug.WriteLine($"${operand:X2}");
             return operand;
         }
 
