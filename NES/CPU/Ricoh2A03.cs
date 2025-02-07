@@ -255,14 +255,15 @@ namespace NES.CPU {
         }
 
         public void BIT(NES.CPU.AddressingMode addressingMode) {
+            Debug.Write("BIT ");
+            int operAnd;
             switch (addressingMode) {
                 case AddressingMode.ZeroPage:
                     throw new NotImplementedException();
                     break;
                 case AddressingMode.Absolute:
-                    int memoryAddress = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
-                    Debug.WriteLine($"${this.pc:X}: BIT ${memoryAddress:X}");
-                    Byte operand = cPUMemoryMap[memoryAddress];
+                    operAnd = Absolute();
+                    Byte operand = cPUMemoryMap[operAnd];
                     if((this.ac & operand) == 0) { SetZero(); }
                     this.sp = (Byte)(operand | 0b11000000); // this checks bit 7 and 6 and place the overflow and negatuve flag. (I don't really understand why, so this could be buggy) 
                     this.CpuCycleCounter += 4;
@@ -358,10 +359,11 @@ namespace NES.CPU {
         }
 
         public void JMP(NES.CPU.AddressingMode addressingMode) {
+            Debug.Write("JMP ");
+            int operAnd;
             switch (addressingMode) {
                 case AddressingMode.Absolute:
-                    int operAnd = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
-                    Debug.WriteLine($"${this.pc:X}: JMP ${cPUMemoryMap[++pc]:X}");
+                    operAnd = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
                     this.pc = (Byte)(operAnd - 1);
                     this.CpuCycleCounter += 3;
                     break;
@@ -378,12 +380,13 @@ namespace NES.CPU {
         }
 
         public void LDA(NES.CPU.AddressingMode addressingMode) {
-            Byte operAnd;
+            Debug.Write("LDA ");
+            int operAnd;
             switch (addressingMode) {
                 case AddressingMode.Immediate:
-                    operAnd = this.cPUMemoryMap[++pc];
-                    Debug.WriteLine($"${this.pc:X}: LDA #{operAnd:X}");
-                    this.ac = operAnd;
+                    Debug.WriteLine($"${this.pc:X}: LDA #{++pc:X}");
+                    //operAnd = this.cPUMemoryMap[++pc];
+                    this.ac = this.cPUMemoryMap[pc];
                     this.CpuCycleCounter += 2;
                     break;
                 case AddressingMode.ZeroPage:
@@ -393,8 +396,7 @@ namespace NES.CPU {
                     throw new NotImplementedException();
                     break;
                 case AddressingMode.Absolute:
-                    operAnd = this.cPUMemoryMap[++pc];
-                    Debug.WriteLine($"${this.pc:X}: LDA ${operAnd:X}");
+                    operAnd = Absolute();
                     this.ac = cPUMemoryMap[operAnd];
                     this.CpuCycleCounter += 4;
                     break;
@@ -492,6 +494,7 @@ namespace NES.CPU {
         }
 
         public void STA(NES.CPU.AddressingMode addressingMode) {
+            Debug.Write("STA ");
             int operAnd;
             switch (addressingMode) {
                 case AddressingMode.ZeroPage:
@@ -504,14 +507,12 @@ namespace NES.CPU {
                     throw new NotImplementedException();
                     break;
                 case AddressingMode.Absolute:
-                    operAnd = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
-                    Debug.WriteLine($"${this.pc:X}: STX ${operAnd:X}");
+                    operAnd = Absolute();
                     this.cPUMemoryMap[operAnd] = this.ac;
                     this.CpuCycleCounter += 4;
                     break;
                 case AddressingMode.AbsoluteX:
                     operAnd = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
-                    Debug.WriteLine($"${this.pc:X}: STA ${operAnd:X},X");
                     int effectiveAddress = operAnd + this.x;
                     cPUMemoryMap[effectiveAddress] = this.ac;
                     this.CpuCycleCounter += 5;
