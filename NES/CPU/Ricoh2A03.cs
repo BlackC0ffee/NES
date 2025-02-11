@@ -368,7 +368,7 @@ namespace NES.CPU {
             switch (addressingMode) {
                 case AddressingMode.Absolute:
                     operand = Absolute();
-                    this.pc = (Byte)(operand - 1);
+                    this.pc = (ushort)(operand - 1);
                     this.CpuCycleCounter += 3;
                     break;
                 case AddressingMode.Indirect:
