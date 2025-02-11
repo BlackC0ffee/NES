@@ -15,7 +15,7 @@
             <MenuItem Header="_Reset" Click="MenuItem_Click" />
         </Menu>
         <StackPanel>
-            <TextBlock x:Name="mainTextBlock" TextWrapping="Wrap" Text="" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsEnabled="False" FontFamily="Consolas" Margin="3,0,0,0"/>
+            <TextBlock x:Name="debugTextBlock" TextWrapping="Wrap" Text="{Binding DebugOutput}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsEnabled="False" FontFamily="Consolas" Margin="3,0,0,0"/>
         </StackPanel>
     </DockPanel>
     

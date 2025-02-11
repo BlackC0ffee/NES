@@ -49,7 +49,7 @@ namespace NES.CPU {
             CpuCycleCounter = 0;
             brk = false;
             pc = (ushort)(this.cPUMemoryMap[0xfffc] | (this.cPUMemoryMap[0xfffd] << 8)); // Mapper 0
-            this.Run();
+            //this.Run();
         }
 
         internal void Demo() {

@@ -11,6 +11,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using NES.Console;
 using System.Diagnostics;
+using System.ComponentModel;
 
 
 namespace NES
@@ -18,12 +19,25 @@ namespace NES
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window {
+    public partial class MainWindow : Window, INotifyPropertyChanged {
         private NES.Console.Console console;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        private string debugOutput;
+        public string DebugOutput { get { return debugOutput; }
+            set {
+                debugOutput = value;
+                OnPropertyChanged(nameof(DebugOutput));
+            }
+        }
         public MainWindow()
         {
             InitializeComponent();
-            //console = new NES.Console.Console();
+            DataContext = this;
+            
+            //console = null;
+
+            //debugTextBlock.
         }
 
         private void MenuOpen_Click(object sender, RoutedEventArgs e)
@@ -31,17 +45,21 @@ namespace NES
             OpenFileDialog ofd = new OpenFileDialog();
             if(ofd.ShowDialog() == true)
             {
-                //string output = "";
-                //Cartridge c = new NES.Console.Cartridge(ofd.FileName);
                 console = new NES.Console.Console(new System.IO.FileInfo(ofd.FileName));
-                //output += c.ReturnHeader();
-                //mainTextBlock.Text = output;
+                console.Run();
+
             }
         }
 
         private void MenuItem_Click(object sender, RoutedEventArgs e) {
             //console.Reset();
-            console.Demo();
+            this.DebugOutput = "hello World!!!";
+        }
+
+        
+
+        protected void OnPropertyChanged(string propertyName) {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
     }
