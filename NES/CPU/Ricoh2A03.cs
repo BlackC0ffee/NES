@@ -83,9 +83,11 @@ namespace NES.CPU {
                 case 0x9d: STA(AddressingMode.AbsoluteX); break;
                 case 0x9a: TXS(); break;
                 case 0xa2: LDX(AddressingMode.Immediate); break;
+                case 0xa5: LDA(AddressingMode.ZeroPage); break;
                 case 0xa9: LDA(AddressingMode.Immediate); break;
                 case 0xad: LDA(AddressingMode.Absolute); break;
                 case 0xb0: BCS(); break;
+                case 0xc9: CMP(AddressingMode.Immediate); break;
                 case 0xd0: BNE(); break;
                 case 0xd8: CLD(); break;
                 case 0xe8: INX(); break;
@@ -270,7 +272,7 @@ namespace NES.CPU {
                     operAnd = Absolute();
                     Byte operand = cPUMemoryMap[operAnd];
                     if((this.ac & operand) == 0) { SetZero(); }
-                    this.sp = (Byte)(operand | 0b11000000); // this checks bit 7 and 6 and place the overflow and negatuve flag. (I don't really understand why, so this could be buggy) 
+                    this.sp = (Byte)(operand | 0b11000000); // this checks bit 7 and 6 and place the overflow and negative flag. (I don't really understand why, so this could be buggy) 
                     this.CpuCycleCounter += 4;
                     break;
                 default:
@@ -320,8 +322,52 @@ namespace NES.CPU {
             throw new NotImplementedException();
         }
 
-        public void CMP() {
-            throw new NotImplementedException();
+        public void CMP(NES.CPU.AddressingMode addressingMode) {
+            Debug.Write("CMP ");
+            int data;
+            switch (addressingMode) {
+                case AddressingMode.Immediate:
+                    data = Immediate();                  
+                    this.CpuCycleCounter += 2;
+                    break;
+                case AddressingMode.ZeroPage:
+                    throw new NotImplementedException();
+                    break;
+                case AddressingMode.ZeroPageX:
+                    throw new NotImplementedException();
+                    break;
+                case AddressingMode.Absolute:
+                    throw new NotImplementedException();
+                    break;
+                case AddressingMode.AbsoluteX:
+                    throw new NotImplementedException();
+                    break;
+                case AddressingMode.AbsoluteY:
+                    throw new NotImplementedException();
+                    break;
+                case AddressingMode.XIndirect:
+                    throw new NotImplementedException();
+                    break;
+                case AddressingMode.IndirectY:
+                    throw new NotImplementedException();
+                    break;
+                default:
+                    throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
+            }
+
+            // http://www.6502.org/tutorials/compare_instructions.html
+            this.sr = (Byte)(sr & 0b10111111); // clears the N-bit (7) in the Status Register. For this operation we start with a 0
+            int n = (data | 0b01000000); // determine the 7th bit (negative flag) of the operand data.
+            if (this.ac < data) {
+                this.sr = (Byte)(sr | n); // set the N-Bit with the result of the 
+            } else if (this.ac == data) {
+                this.sr = (Byte)(sr | 0b00000011); //Sets the zero and carry bit to 1. the N-bit stays 0
+            } else if (this.ac > data) {
+                this.sr = (Byte)(sr | 0b00000010); //Sets the zero bit to 1. the N-bit stays gets
+                this.sr = (Byte)(sr | n); // set the N-Bit with the result of the
+            } else {
+                throw new Exception("How?");
+            }
         }
 
         public void CPX() {
@@ -393,7 +439,9 @@ namespace NES.CPU {
                     this.CpuCycleCounter += 2;
                     break;
                 case AddressingMode.ZeroPage:
-                    throw new NotImplementedException();
+                    operand = ZeroPage();
+                    this.ac = (Byte)operand;
+                    this.CpuCycleCounter += 2;
                     break;
                 case AddressingMode.ZeroPageX:
                     throw new NotImplementedException();

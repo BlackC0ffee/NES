@@ -47,7 +47,7 @@ namespace NES.CPU
         void CLD(); //clear decimal
         void CLI(); //clear interrupt disable
         void CLV(); //clear overflow
-        void CMP(); //compare(with accumulator)
+        void CMP(NES.CPU.AddressingMode addressingMod); //compare(with accumulator)
         void CPX(); //compare with X
         void CPY(); //compare with Y
         void DEC(); //decrement
