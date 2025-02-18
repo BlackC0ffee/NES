@@ -54,9 +54,10 @@ namespace NES
         private void MenuItem_Click(object sender, RoutedEventArgs e) {
             //console.Reset();
             this.DebugOutput = "hello World!!!";
+
         }
 
-        
+
 
         protected void OnPropertyChanged(string propertyName) {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

@@ -331,9 +331,11 @@ namespace NES.CPU {
                     this.CpuCycleCounter += 2;
                     break;
                 case AddressingMode.ZeroPage:
-                    throw new NotImplementedException();
+                    data = ZeroPage();
+                    this.CpuCycleCounter += 3;
                     break;
                 case AddressingMode.ZeroPageX:
+                    
                     throw new NotImplementedException();
                     break;
                 case AddressingMode.Absolute:
@@ -671,6 +673,12 @@ namespace NES.CPU {
             int operand = this.cPUMemoryMap[++pc];
             Debug.WriteLine($"${operand:X2}");
             return (0b00000000 | operand);
+        }
+
+        private int ZeroPageX() {
+            Byte operand = this.cPUMemoryMap[++pc];
+            Debug.WriteLine($"${operand:X2},X");
+            return (0b00000000 | (Byte)(operand + this.x));
         }
         #endregion
     }
