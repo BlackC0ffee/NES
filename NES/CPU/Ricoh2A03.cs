@@ -212,17 +212,23 @@ namespace NES.CPU {
         }
         #endregion
         public void ADC(NES.CPU.AddressingMode addressingMode, Byte Operand) {
-            Debug.WriteLine("ADC ");
+            Debug.Write("ADC ");
+            int data;
             switch (addressingMode) {
                 case AddressingMode.Immediate:
+                    data = Immediate();
                     break;
                 case AddressingMode.ZeroPage:
+                    data = ZeroPage();
                     break;
                 case AddressingMode.ZeroPageX:
+                    data = ZeroPageX();
                     break;
                 case AddressingMode.Absolute:
+                    data = Absolute();
                     break;
                 case AddressingMode.AbsoluteX:
+                    data = AbsoluteX();
                     break;
                 case AddressingMode.AbsoluteY:
                     break;
@@ -657,6 +663,12 @@ namespace NES.CPU {
             return operand + this.x;
         }
 
+        private int AbsoluteY() {
+            int operand = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
+            Debug.WriteLine($"${operand:X4},Y");
+            return operand + this.y;
+        }
+
         private int Immediate() {
             int operand = cPUMemoryMap[++pc];
             Debug.WriteLine($"#{operand:X2}");
@@ -680,6 +692,8 @@ namespace NES.CPU {
             Debug.WriteLine($"${operand:X2},X");
             return (0b00000000 | (Byte)(operand + this.x));
         }
+
+        
         #endregion
     }
 }
