@@ -231,6 +231,7 @@ namespace NES.CPU {
                     data = AbsoluteX();
                     break;
                 case AddressingMode.AbsoluteY:
+                    data = AbsoluteY();
                     break;
                 case AddressingMode.XIndirect:
                     break;
@@ -693,7 +694,16 @@ namespace NES.CPU {
             return (0b00000000 | (Byte)(operand + this.x));
         }
 
-        
+        private int Indirect() {
+            int operand = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
+            Debug.WriteLine($"({operand:X4})");
+            return this.cPUMemoryMap[operand] | (this.cPUMemoryMap[++operand] << 8);
+        }
+
+        private int XIndirect() {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 }
