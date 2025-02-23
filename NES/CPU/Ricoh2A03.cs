@@ -74,7 +74,15 @@ namespace NES.CPU {
                 case 0x10: BPL(); break;
                 case 0x2c: BIT(AddressingMode.Absolute); break;
                 case 0x4c: JMP(AddressingMode.Absolute); break;
+                case 0x61: ADC(AddressingMode.XIndirect); break;
+                case 0x65: ADC(AddressingMode.ZeroPage); break;
+                case 0x69: ADC(AddressingMode.Immediate); break;
+                case 0x6D: ADC(AddressingMode.Absolute); break;
+                case 0x71: ADC(AddressingMode.IndirectY); break;
+                case 0x75: ADC(AddressingMode.ZeroPageX); break;
                 case 0x78: SEI(); break;
+                case 0x79: ADC(AddressingMode.AbsoluteY); break;
+                case 0x7D: ADC(AddressingMode.AbsoluteX); break;
                 case 0x85: STA(AddressingMode.ZeroPage); break;
                 case 0x8a: TXA(); break;
                 case 0x8d: STA(AddressingMode.Absolute); break;
@@ -211,7 +219,7 @@ namespace NES.CPU {
             this.CpuCycleCounter += 7;
         }
         #endregion
-        public void ADC(NES.CPU.AddressingMode addressingMode, Byte Operand) {
+        public void ADC(NES.CPU.AddressingMode addressingMode) {
             Debug.Write("ADC ");
             int data;
             switch (addressingMode) {
@@ -234,12 +242,15 @@ namespace NES.CPU {
                     data = AbsoluteY();
                     break;
                 case AddressingMode.XIndirect:
+                    data = XIndirect();
                     break;
                 case AddressingMode.IndirectY:
+                    data= IndirectY();
                     break;
                 default:
                     throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
             }
+            throw new NotImplementedException();
         }
 
         public void AND() {
