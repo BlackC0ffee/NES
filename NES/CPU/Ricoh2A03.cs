@@ -697,13 +697,22 @@ namespace NES.CPU {
         private int Indirect() {
             int operand = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
             Debug.WriteLine($"({operand:X4})");
+            //TODO: add operand overflow bug where eg 20FF becomes 2000 instead of 2100
             return this.cPUMemoryMap[operand] | (this.cPUMemoryMap[++operand] << 8);
         }
 
         private int XIndirect() {
-            throw new NotImplementedException();
+            int operand = this.cPUMemoryMap[++pc];
+            Debug.WriteLine($"({operand:X2},X)");
+            int zeroPageAdr = operand + x;
+            return this.cPUMemoryMap[zeroPageAdr] | (this.cPUMemoryMap[++zeroPageAdr] << 8);
         }
 
+        private int IndirectY() {
+            int operand = this.cPUMemoryMap[++pc];
+            Debug.WriteLine($"({operand:X2}),Y");
+            return (this.cPUMemoryMap[operand] | (this.cPUMemoryMap[++operand] << 8)) + y;
+        }
         #endregion
     }
 }

@@ -54,7 +54,6 @@ namespace NES
         private void MenuItem_Click(object sender, RoutedEventArgs e) {
             //console.Reset();
             this.DebugOutput = "hello World!!!";
-
         }
 
 
