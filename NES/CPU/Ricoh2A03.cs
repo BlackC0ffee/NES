@@ -53,6 +53,7 @@ namespace NES.CPU {
         }
 
         internal void Demo() {
+
             SEC();
             SED();
             SEI();
@@ -250,7 +251,14 @@ namespace NES.CPU {
                 default:
                     throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
             }
+            int c = this.sr & 0b00000001;
+            
+            int result = this.ac + data + c;
+            if(result > 0xff) {
+                sr = (Byte)(sr | 0b00000001); // th
+            }
             throw new NotImplementedException();
+
         }
 
         public void AND() {
@@ -289,7 +297,7 @@ namespace NES.CPU {
                 case AddressingMode.Absolute:
                     operAnd = Absolute();
                     Byte operand = cPUMemoryMap[operAnd];
-                    if((this.ac & operand) == 0) { SetZero(); }
+                    if((this.ac & operand) == 0) { SetZeroFlag(); }
                     this.sp = (Byte)(operand | 0b11000000); // this checks bit 7 and 6 and place the overflow and negative flag. (I don't really understand why, so this could be buggy) 
                     this.CpuCycleCounter += 4;
                     break;
@@ -658,10 +666,33 @@ namespace NES.CPU {
         }
 
         #region Helper Functions
-        void SetZero() {
-            Byte mask = 0b0000010;
-            this.sr = (Byte)(this.sr | mask);
-        }
+        private void SetCarryFlag() { this.sr = (Byte)(this.sr | 0b00000001); }
+
+        private int GetCarryFlag() { return (this.sr & 0b00000001); }
+
+        void SetZeroFlag() { this.sr = (Byte)(this.sr | 0b0000010); }
+
+        public int GetZeroFlag() { return (this.sr & 0b00000010) >> 1; }
+
+        private void SetInterruptDisableFlag() { this.sr = (Byte)(this.sr | 0b00000100); }
+
+        private int GetInterruptDisableFlag() { return (this.sr & 0b00000100) >> 2; }
+
+        private void SetDecimalFlag() { this.sr = (Byte)(this.sr | 0b00001000); }
+
+        private int GetDecimalFlag() { return (this.sr & 0b00001000) >> 3; }
+        
+        private void SetBreakFlag() { this.sr = (Byte)(this.sr | 0b00010000); }
+
+        private int GetBreakFlag() { return (this.sr & 0b00010000) >> 4; }
+
+        private void SetOverFlowFlag() { this.sr = (Byte)(this.sr | 0b01000000); }
+
+        private int GetOverFlag() { return (this.sr & 0b01000000) >> 6; }
+
+        private void SetNegativeFlag() { this.sr = (Byte)(this.sr | 0b10000000); }
+
+        private int GetNegativeFlag() { return (this.sr & 0b10000000) >> 7; }
 
         private int Absolute() {
             int operand = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);

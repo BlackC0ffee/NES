@@ -46,6 +46,7 @@ namespace NES
             if(ofd.ShowDialog() == true)
             {
                 console = new NES.Console.Console(new System.IO.FileInfo(ofd.FileName));
+                //console.Demo();
                 console.Run();
 
             }
