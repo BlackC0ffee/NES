@@ -254,6 +254,16 @@ namespace NES.CPU {
             int c = this.sr & 0b00000001;
             
             int result = this.ac + data + c;
+            this.ac = (Byte)result; // This removes the unwanted bits, because the ac is only one byte.
+
+            if (result < 0 || result < 255) { // this checksif the results is less or more in case of an unsigned Byte. The carry flag doesn't know or cares if the result is signed or unsigned
+                SetCarryFlag();
+            } else {
+                ClearCarryFlag();
+            }
+            //if (GetDecimalFlag() == 1) { // Signed
+
+            //}
             if(result > 0xff) {
                 sr = (Byte)(sr | 0b00000001); // th
             }
@@ -668,6 +678,8 @@ namespace NES.CPU {
         #region Helper Functions
         private void SetCarryFlag() { this.sr = (Byte)(this.sr | 0b00000001); }
 
+        private void ClearCarryFlag() { this.sr = (Byte)(this.sr & 0b11111110); }
+
         private int GetCarryFlag() { return (this.sr & 0b00000001); }
 
         void SetZeroFlag() { this.sr = (Byte)(this.sr | 0b0000010); }
@@ -680,7 +692,7 @@ namespace NES.CPU {
 
         private void SetDecimalFlag() { this.sr = (Byte)(this.sr | 0b00001000); }
 
-        private int GetDecimalFlag() { return (this.sr & 0b00001000) >> 3; }
+        // Use SED/CLD  private int GetDecimalFlag() { return (this.sr & 0b00001000) >> 3; }
         
         private void SetBreakFlag() { this.sr = (Byte)(this.sr | 0b00010000); }
 
