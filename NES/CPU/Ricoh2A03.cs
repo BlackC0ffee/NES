@@ -256,17 +256,20 @@ namespace NES.CPU {
             int result = this.ac + data + c;
             this.ac = (Byte)result; // This removes the unwanted bits, because the ac is only one byte.
 
-            if (result < 0 || result < 255) { // this checksif the results is less or more in case of an unsigned Byte. The carry flag doesn't know or cares if the result is signed or unsigned
+            if (result < 0 || result > 255) { // this checksif the results is less or more in case of an unsigned Byte. The carry flag doesn't know or cares if the result is signed or unsigned
                 SetCarryFlag();
             } else {
                 ClearCarryFlag();
             }
-            //if (GetDecimalFlag() == 1) { // Signed
 
+            //Next the overflow flag
+
+
+
+
+            //if(result > 0xff) {
+            //    sr = (Byte)(sr | 0b00000001); // th
             //}
-            if(result > 0xff) {
-                sr = (Byte)(sr | 0b00000001); // th
-            }
             throw new NotImplementedException();
 
         }
@@ -705,6 +708,8 @@ namespace NES.CPU {
         private void SetNegativeFlag() { this.sr = (Byte)(this.sr | 0b10000000); }
 
         private int GetNegativeFlag() { return (this.sr & 0b10000000) >> 7; }
+
+        private int GetMostSignificantBit(Byte x) { return (x & 0b10000000) >> 7; }
 
         private int Absolute() {
             int operand = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
