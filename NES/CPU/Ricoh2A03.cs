@@ -253,8 +253,10 @@ namespace NES.CPU {
             }
             int c = this.sr & 0b00000001;
             
+
+
             int result = this.ac + data + c;
-            this.ac = (Byte)result; // This removes the unwanted bits, because the ac is only one byte.
+            
 
             if (result < 0 || result > 255) { // this checksif the results is less or more in case of an unsigned Byte. The carry flag doesn't know or cares if the result is signed or unsigned
                 SetCarryFlag();
@@ -262,9 +264,16 @@ namespace NES.CPU {
                 ClearCarryFlag();
             }
 
-            //Next the overflow flag
+            //next check for the overflow flag (https://www.youtube.com/watch?v=8XmxKPJDGU0)
+            Boolean a = GetMostSignificantBit(ac) != 0;
+            Boolean d = GetMostSignificantBit((Byte)data) != 0;
+            Boolean r = GetMostSignificantBit((Byte)result) != 0;
+            if ((a^r)&!(a^r)){
+                SetOverFlowFlag();
+            }
 
-
+            //finaly set the new accumulator
+            this.ac = (Byte)result; // This removes the unwanted bits, because the ac is only one byte.
 
 
             //if(result > 0xff) {
