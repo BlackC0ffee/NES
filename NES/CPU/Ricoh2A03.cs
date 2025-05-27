@@ -73,7 +73,15 @@ namespace NES.CPU {
                 case 0x00: BRK(); break;
                 case 0x01: ORA(); break;
                 case 0x10: BPL(); break;
+                case 0x21: AND(AddressingMode.XIndirect); break;
+                case 0x25: AND(AddressingMode.ZeroPage); break;
+                case 0x29: AND(AddressingMode.Immediate); break;
                 case 0x2c: BIT(AddressingMode.Absolute); break;
+                case 0x2d: AND(AddressingMode.Absolute); break;
+                case 0x31: AND(AddressingMode.IndirectY); break;
+                case 0x35: AND(AddressingMode.ZeroPageX); break;
+                case 0x39: AND(AddressingMode.AbsoluteY); break;
+                case 0x3d: AND(AddressingMode.AbsoluteX); break;
                 case 0x4c: JMP(AddressingMode.Absolute); break;
                 case 0x61: ADC(AddressingMode.XIndirect); break;
                 case 0x65: ADC(AddressingMode.ZeroPage); break;
@@ -283,8 +291,37 @@ namespace NES.CPU {
 
         }
 
-        public void AND() {
-            throw new NotImplementedException();
+        public void AND(NES.CPU.AddressingMode addressingMode) {
+            Debug.Write("AND ");
+            int data;
+            switch (addressingMode) {
+                case AddressingMode.Immediate:
+                    data = Immediate();
+                    break;
+                case AddressingMode.Absolute:
+                    data = Absolute();
+                    break;
+                case AddressingMode.ZeroPage:
+                    data = ZeroPage();
+                    break;
+                case AddressingMode.AbsoluteX:
+                    data = AbsoluteX();
+                    break;
+                case AddressingMode.AbsoluteY:
+                    data = AbsoluteY();
+                    break;
+                case AddressingMode.XIndirect:
+                    data = XIndirect();
+                    break;
+                case AddressingMode.IndirectY:
+                    data = IndirectY();
+                    break;
+                default:
+                    throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
+            }
+            this.ac = (Byte)(this.ac & data);
+            if (this.ac == 0){ SetZeroFlag(); }
+            if(isNegative(this.ac)){ SetNegativeFlag(); }
         }
 
         public void ASL() {
@@ -719,6 +756,14 @@ namespace NES.CPU {
         private int GetNegativeFlag() { return (this.sr & 0b10000000) >> 7; }
 
         private int GetMostSignificantBit(Byte x) { return (x & 0b10000000) >> 7; }
+
+        private bool isNegative(Byte input) {
+            if (((input & 0b10000000) >> 7) == 1) {
+                return true;
+            } else {
+                return false;
+            }
+        }
 
         private int Absolute() {
             int operand = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);

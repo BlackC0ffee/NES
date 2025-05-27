@@ -31,7 +31,7 @@ namespace NES.CPU
     {
         void Reset();
         void ADC(NES.CPU.AddressingMode addressingMode); //add with carry
-        void AND(); //and(with accumulator)
+        void AND(NES.CPU.AddressingMode addressingMode); //and(with accumulator)
         void ASL(); //arithmetic shift left
         void BCC(); //branch on carry clear
         void BCS(); //branch on carry set
