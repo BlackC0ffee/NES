@@ -33,7 +33,7 @@ namespace NES.CPU
         void ADC(NES.CPU.AddressingMode addressingMode); //add with carry
         void AND(NES.CPU.AddressingMode addressingMode); //and(with accumulator)
         void ASL(NES.CPU.AddressingMode addressingMode); //arithmetic shift left
-        void BCC(); //branch on carry clear
+        void BCC(NES.CPU.AddressingMode addressingMode); //branch on carry clear
         void BCS(); //branch on carry set
         void BEQ(); //branch on equal(zero set)
         void BIT(NES.CPU.AddressingMode addressingMode); //bit test

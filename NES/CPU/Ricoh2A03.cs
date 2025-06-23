@@ -359,8 +359,12 @@ namespace NES.CPU {
             if(this.ac == 0){ this.SetZeroFlag(); }
         }
 
-        public void BCC() {
-            throw new NotImplementedException();
+        public void BCC(NES.CPU.AddressingMode addressingMode) {
+            if(addressingMode != AddressingMode.Relative) { throw new ArgumentException($"Invalid addressing mode: {addressingMode}"); }
+            int data = Relative();
+            if (GetCarryFlag() == 0) {
+                this.pc = (Byte)(this.pc + data);
+            }
         }
 
         public void BCS() {
