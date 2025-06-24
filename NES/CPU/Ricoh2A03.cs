@@ -101,6 +101,7 @@ namespace NES.CPU {
                 case 0x8a: TXA(); break;
                 case 0x8d: STA(AddressingMode.Absolute); break;
                 case 0x8e: STX(AddressingMode.Absolute); break;
+                case 0x90: BCC(AddressingMode.Relative); break;
                 case 0x95: STA(AddressingMode.ZeroPage); break;
                 case 0x9d: STA(AddressingMode.AbsoluteX); break;
                 case 0x9a: TXS(); break;
