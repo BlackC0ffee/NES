@@ -114,6 +114,7 @@ namespace NES.CPU {
                 case 0xd0: BNE(); break;
                 case 0xd8: CLD(); break;
                 case 0xe8: INX(); break;
+                case 0xf0: BEQ(); break;
                 default: throw new NotImplementedException($"Instruction with opcode {opcodes:X} not found"); break;
             }
             pc++; //increment program counter at the end of the cycle
@@ -361,7 +362,8 @@ namespace NES.CPU {
         }
 
         public void BCC(NES.CPU.AddressingMode addressingMode) {
-            if(addressingMode != AddressingMode.Relative) { throw new ArgumentException($"Invalid addressing mode: {addressingMode}"); }
+            Debug.Write("BCC ");
+            if (addressingMode != AddressingMode.Relative) { throw new ArgumentException($"Invalid addressing mode: {addressingMode}"); }
             int data = Relative();
             if (GetCarryFlag() == 0) {
                 this.pc = (Byte)(this.pc + data);
@@ -370,16 +372,20 @@ namespace NES.CPU {
 
         public void BCS() {
             Debug.Write("BCS ");
-            int operand = Relative();
+            int data = Relative();
             if ((this.sr & 0b00000001) == 1) {
-                pc = (ushort)(pc + operand);
+                pc = (ushort)(pc + data);
                 this.CpuCycleCounter++;
             }
             this.CpuCycleCounter += 2;
         }
 
         public void BEQ() {
-            throw new NotImplementedException();
+            Debug.Write("BEQ");
+            int data = Relative();
+            if(GetZeroFlag() == 1) {
+                this.pc = (Byte)(this.pc + data);
+            }
         }
 
         public void BIT(NES.CPU.AddressingMode addressingMode) {
