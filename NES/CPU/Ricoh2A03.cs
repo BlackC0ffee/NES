@@ -16,6 +16,8 @@ using System.Windows.Controls;
 using System.Xaml.Schema;
 
 namespace NES.CPU {
+
+    public delegate void InstructionExecutedEventHandler(object sender, CPU.InstructionEventArgs e);
     internal class Ricoh2A03 : NES.CPU.IMOS6502 {
         //private NES.RAM.Memory memory;
 
@@ -34,6 +36,7 @@ namespace NES.CPU {
         private ulong CpuCycleCounter;
 
         private NES.CPU.CPUMemoryMap cPUMemoryMap;
+        //public event Instrct
 
         // Variables
         private NES.Console.Cartridge cartridge;
@@ -41,15 +44,21 @@ namespace NES.CPU {
 
         private bool brk; // temporary boolean we will use during programming
 
+        
+        public event InstructionExecutedEventHandler InstructionExecuted;
+        private InstructionEventArgs instructionDetails;
+
         public Ricoh2A03(NES.Console.Cartridge cartridge) {
             this.cartridge = cartridge;
             cPUMemoryMap = new CPUMemoryMap(this.cartridge);
+            instructionDetails = new InstructionEventArgs();
             sr = 0b00100000; // bit 5 has no name and is always set to 1
             //this.Reset();
             CpuCycleCounter = 0;
             brk = false;
             pc = (ushort)(this.cPUMemoryMap[0xfffc] | (this.cPUMemoryMap[0xfffd] << 8)); // Mapper 0
             //this.Run();
+
         }
 
         internal void Demo() {
@@ -69,6 +78,8 @@ namespace NES.CPU {
 
         public void ExecuteInstruction(int opcodes) {
             Debug.Write($"${this.pc:X}: "); // Writes the current Programcounter
+            instructionDetails.ProgramCounter = $"${this.pc:X}";
+            instructionDetails.opcode = $"{opcodes:X}";
             switch (opcodes) {
                 case 0x00: BRK(); break;
                 case 0x01: ORA(); break;
@@ -167,7 +178,7 @@ namespace NES.CPU {
         public void Run() {
             while (!brk){
                 ExecuteInstruction(cPUMemoryMap[pc]);
-
+                InstructionExecuted(this, instructionDetails);
                 // to check Status Register functions operand bytes
 
                 //do {
@@ -204,6 +215,7 @@ namespace NES.CPU {
 
         public void SEI() { // Set Interrupt Disable flag to 1
             Debug.WriteLine("SEI");
+            instructionDetails.Instruction = "SEI";
             Byte mask = 0b00000100;
             sr = (Byte)(sr ^ mask);
             this.CpuCycleCounter += 2;

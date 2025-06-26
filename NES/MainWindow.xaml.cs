@@ -33,11 +33,7 @@ namespace NES
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = this;
-            
-            //console = null;
 
-            //debugTextBlock.
         }
 
         private void MenuOpen_Click(object sender, RoutedEventArgs e)
@@ -46,15 +42,19 @@ namespace NES
             if(ofd.ShowDialog() == true)
             {
                 console = new NES.Console.Console(new System.IO.FileInfo(ofd.FileName));
-                //console.Demo();
+                console.CPUStep += Console_CPUStep;
                 console.Run();
 
             }
         }
 
+        private void Console_CPUStep(object sender, CPU.InstructionEventArgs e) {
+            this.debugOutput = e.ProgramCounter + " " + e.opcode + " " + e.Instruction + " " + e.operand;
+        }
+
         private void MenuItem_Click(object sender, RoutedEventArgs e) {
             //console.Reset();
-            this.DebugOutput = "hello World!!!";
+            //this.DebugOutput = "hello World!!!";
         }
 
 
