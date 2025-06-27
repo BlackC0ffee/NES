@@ -19,17 +19,9 @@ namespace NES
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window, INotifyPropertyChanged {
+    public partial class MainWindow : Window {
         private NES.Console.Console console;
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        private string debugOutput;
-        public string DebugOutput { get { return debugOutput; }
-            set {
-                debugOutput = value;
-                OnPropertyChanged(nameof(DebugOutput));
-            }
-        }
         public MainWindow()
         {
             InitializeComponent();
@@ -49,18 +41,23 @@ namespace NES
         }
 
         private void Console_CPUStep(object sender, CPU.InstructionEventArgs e) {
-            this.debugOutput = e.ProgramCounter + " " + e.opcode + " " + e.Instruction + " " + e.operand;
+            // Check if we are on the UI thread
+            if (this.debugTextBlock.Dispatcher.CheckAccess()) {
+                // Update the TextBlock directly
+                this.debugTextBlock.Text = e.ProgramCounter + " " + e.opcode + " " + e.Instruction + " " + e.operand + Environment.NewLine;
+            } else {
+                // If not on the UI thread, use Dispatcher to update
+                this.debugTextBlock.Dispatcher.Invoke(() => {
+                    this.debugTextBlock.Text = e.ProgramCounter + " " + e.opcode + " " + e.Instruction + " " + e.operand + Environment.NewLine;
+                });
+            }
+            //this.debugTextBlock.Text += e.ProgramCounter + " " + e.opcode + " " + e.Instruction + " " + e.operand + Environment.NewLine;
+            Thread.Sleep(2000);
         }
 
         private void MenuItem_Click(object sender, RoutedEventArgs e) {
             //console.Reset();
             //this.DebugOutput = "hello World!!!";
-        }
-
-
-
-        protected void OnPropertyChanged(string propertyName) {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
     }

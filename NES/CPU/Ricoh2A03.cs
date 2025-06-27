@@ -179,6 +179,7 @@ namespace NES.CPU {
             while (!brk){
                 ExecuteInstruction(cPUMemoryMap[pc]);
                 InstructionExecuted(this, instructionDetails);
+                brk = true;
                 // to check Status Register functions operand bytes
 
                 //do {
