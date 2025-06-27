@@ -21,6 +21,7 @@ namespace NES
     /// </summary>
     public partial class MainWindow : Window {
         private NES.Console.Console console;
+        private Thread consoleThread;
 
         public MainWindow()
         {
@@ -35,8 +36,9 @@ namespace NES
             {
                 console = new NES.Console.Console(new System.IO.FileInfo(ofd.FileName));
                 console.CPUStep += Console_CPUStep;
-                console.Run();
-
+                consoleThread = new(new ThreadStart(console.Run));
+                consoleThread.Start();
+                //console.Run();
             }
         }
 
@@ -44,14 +46,13 @@ namespace NES
             // Check if we are on the UI thread
             if (this.debugTextBlock.Dispatcher.CheckAccess()) {
                 // Update the TextBlock directly
-                this.debugTextBlock.Text = e.ProgramCounter + " " + e.opcode + " " + e.Instruction + " " + e.operand + Environment.NewLine;
+                this.debugTextBlock.Text += e.ProgramCounter + " " + e.opcode + " " + e.Instruction + " " + e.operand + Environment.NewLine;
             } else {
                 // If not on the UI thread, use Dispatcher to update
                 this.debugTextBlock.Dispatcher.Invoke(() => {
-                    this.debugTextBlock.Text = e.ProgramCounter + " " + e.opcode + " " + e.Instruction + " " + e.operand + Environment.NewLine;
+                    this.debugTextBlock.Text += e.ProgramCounter + " " + e.opcode + " " + e.Instruction + " " + e.operand + Environment.NewLine;
                 });
             }
-            //this.debugTextBlock.Text += e.ProgramCounter + " " + e.opcode + " " + e.Instruction + " " + e.operand + Environment.NewLine;
             Thread.Sleep(2000);
         }
 
