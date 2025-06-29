@@ -79,7 +79,7 @@ namespace NES.CPU {
         public void ExecuteInstruction(int opcodes) {
             Debug.Write($"${this.pc:X}: "); // Writes the current Programcounter
             instructionDetails.ProgramCounter = $"${this.pc:X}";
-            instructionDetails.opcode = $"{opcodes:X}";
+            instructionDetails.Opcode = $"{opcodes:X}";
             switch (opcodes) {
                 case 0x00: BRK(); break;
                 case 0x01: ORA(); break;
@@ -179,6 +179,7 @@ namespace NES.CPU {
             while (!brk){
                 ExecuteInstruction(cPUMemoryMap[pc]);
                 InstructionExecuted(this, instructionDetails);
+                instructionDetails.Clear();
                 //brk = true;
                 // to check Status Register functions operand bytes
 

@@ -26,7 +26,7 @@ namespace NES
         public MainWindow()
         {
             InitializeComponent();
-
+            this.debugTextBlock.Text = "";
         }
 
         private void MenuOpen_Click(object sender, RoutedEventArgs e)
@@ -38,6 +38,7 @@ namespace NES
                 console.CPUStep += Console_CPUStep;
                 consoleThread = new(new ThreadStart(console.Run));
                 consoleThread.Start();
+                
                 //console.Run();
             }
         }
@@ -46,11 +47,11 @@ namespace NES
             // Check if we are on the UI thread
             if (this.debugTextBlock.Dispatcher.CheckAccess()) {
                 // Update the TextBlock directly
-                this.debugTextBlock.Text += e.ProgramCounter + " " + e.opcode + " " + e.Instruction + " " + e.operand + Environment.NewLine;
+                this.debugTextBlock.Text += e.ProgramCounter + " " + e.Opcode + " " + e.Instruction + " " + e.Operand + Environment.NewLine;
             } else {
                 // If not on the UI thread, use Dispatcher to update
                 this.debugTextBlock.Dispatcher.Invoke(() => {
-                    this.debugTextBlock.Text += e.ProgramCounter + " " + e.opcode + " " + e.Instruction + " " + e.operand + Environment.NewLine;
+                    this.debugTextBlock.Text += e.ProgramCounter + " " + e.Opcode + " " + e.Instruction + " " + e.Operand + Environment.NewLine;
                 });
             }
             Thread.Sleep(2000);
