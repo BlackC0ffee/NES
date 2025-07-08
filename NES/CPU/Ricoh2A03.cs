@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualBasic;
+﻿//using Microsoft.VisualBasic;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -58,7 +58,6 @@ namespace NES.CPU {
             brk = false;
             pc = (ushort)(this.cPUMemoryMap[0xfffc] | (this.cPUMemoryMap[0xfffd] << 8)); // Mapper 0
             //this.Run();
-
         }
 
         internal void Demo() {
@@ -75,6 +74,8 @@ namespace NES.CPU {
             CLD();
             Debug.WriteLine(Convert.ToString(sr, toBase: 2));
         }
+
+
 
         public void ExecuteInstruction(int opcodes) {
             Debug.Write($"${this.pc:X}: "); // Writes the current Programcounter

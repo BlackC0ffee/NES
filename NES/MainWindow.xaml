@@ -15,7 +15,14 @@
             <MenuItem Header="_Reset" Click="MenuItem_Click" />
         </Menu>
         <StackPanel>
-            <TextBlock x:Name="debugTextBlock" TextWrapping="Wrap" Text="TextBlock"/>
+            <DataGrid x:Name="memoryMapDataGrid" Height="100">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Program Counter" Binding="{Binding ProgramCounter}"/>
+                    <DataGridTextColumn Header="Opcode" Binding="{Binding Opcode}"/>
+                    <DataGridTextColumn Header="Instruction" Binding="{Binding Instruction}"/>
+                    <DataGridTextColumn Header="Operand" Binding="{Binding Operand}"/>
+                </DataGrid.Columns>
+            </DataGrid>
         </StackPanel>
     </DockPanel>
     
