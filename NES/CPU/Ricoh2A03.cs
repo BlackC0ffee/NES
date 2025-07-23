@@ -93,6 +93,7 @@ namespace NES.CPU {
                 case 0x21: AND(AddressingMode.XIndirect); break;
                 case 0x25: AND(AddressingMode.ZeroPage); break;
                 case 0x29: AND(AddressingMode.Immediate); break;
+                case 0x30: BMI(); break;
                 case 0x2c: BIT(AddressingMode.Absolute); break;
                 case 0x2d: AND(AddressingMode.Absolute); break;
                 case 0x31: AND(AddressingMode.IndirectY); break;
@@ -423,7 +424,13 @@ namespace NES.CPU {
         }
 
         public void BMI() {
-            throw new NotImplementedException();
+            instructionDetails.Instruction = "BMI";
+            int operand = Relative();
+            if (GetNegativeFlag() == 1) {
+                pc = (ushort)(pc + operand);
+                this.CpuCycleCounter++;
+            }
+            this.CpuCycleCounter += 2;
         }
 
         public void BNE() {
