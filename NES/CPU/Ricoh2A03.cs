@@ -204,55 +204,54 @@ namespace NES.CPU {
         // |+-------- Overflow
         // +--------- Negative
         public void SEC() { // Set the carry flag to 1
-            Debug.WriteLine("SEC");
+            this.instructionDetails.Instruction = "SEC";
             Byte mask = 0b00000001;
             sr = (Byte)(sr ^ mask);
             this.CpuCycleCounter += 2;
         }
         
         public void CLC() { // Set the carry flag to 0
-            Debug.WriteLine("CLC");
+            this.instructionDetails.Instruction = "CLC";
             Byte mask = 0b11111110;
             sr = (Byte)(sr & mask);
             this.CpuCycleCounter += 2;
         }
 
         public void SEI() { // Set Interrupt Disable flag to 1
-            Debug.WriteLine("SEI");
-            instructionDetails.Instruction = "SEI";
+            this.instructionDetails.Instruction = "SEI";
             Byte mask = 0b00000100;
             sr = (Byte)(sr ^ mask);
             this.CpuCycleCounter += 2;
         }
         public void CLI() { // Set Interrupt Disable flag to 0
-            Debug.WriteLine("CLI");
+            this.instructionDetails.Instruction = "CLI";
             Byte mask = 0b11111011;
             sr = (Byte)(sr & mask);
             this.CpuCycleCounter += 2;
         }
 
         public void SED() { // Set Decimal Mode flag to 1
-            Debug.WriteLine("SED");
+            this.instructionDetails.Instruction = "SED";
             Byte mask = 0b00001000;
             sr = (Byte)(sr ^ mask);
             this.CpuCycleCounter += 2;
         }
         public void CLD() { // Set Decimal Mode flag to 0
-            Debug.WriteLine("CLD");
+            this.instructionDetails.Instruction = "CLD";
             Byte mask = 0b11110111;
             sr = (Byte)(sr & mask);
             this.CpuCycleCounter += 2;
         }
 
         public void BRK() { // Set the Break Command flag to 1
-            Debug.WriteLine("BRK");
+            this.instructionDetails.Instruction = "BRK";
             Byte mask = 0b00010000;
             sr = (Byte)(sr ^ mask);
             this.CpuCycleCounter += 7;
         }
         #endregion
         public void ADC(NES.CPU.AddressingMode addressingMode) {
-            Debug.Write("ADC ");
+            this.instructionDetails.Instruction = "ADC";
             int data;
             switch (addressingMode) {
                 case AddressingMode.Immediate:
@@ -315,7 +314,7 @@ namespace NES.CPU {
         }
 
         public void AND(NES.CPU.AddressingMode addressingMode) {
-            Debug.Write("AND ");
+            this.instructionDetails.Instruction = "AND";
             int data;
             switch (addressingMode) {
                 case AddressingMode.Immediate:
@@ -348,7 +347,7 @@ namespace NES.CPU {
         }
 
         public void ASL(NES.CPU.AddressingMode addressingMode) {
-            Debug.Write("AND ");
+            this.instructionDetails.Instruction = "ASL";
             int data;
             switch (addressingMode) {
                 case AddressingMode.ZeroPage:
@@ -378,7 +377,7 @@ namespace NES.CPU {
         }
 
         public void BCC(NES.CPU.AddressingMode addressingMode) {
-            Debug.Write("BCC ");
+            this.instructionDetails.Instruction = "BCC";
             if (addressingMode != AddressingMode.Relative) { throw new ArgumentException($"Invalid addressing mode: {addressingMode}"); }
             int data = Relative();
             if (GetCarryFlag() == 0) {
@@ -387,7 +386,7 @@ namespace NES.CPU {
         }
 
         public void BCS() {
-            Debug.Write("BCS ");
+            this.instructionDetails.Instruction = "BCS";
             int data = Relative();
             if ((this.sr & 0b00000001) == 1) {
                 pc = (ushort)(pc + data);
@@ -397,7 +396,7 @@ namespace NES.CPU {
         }
 
         public void BEQ() {
-            Debug.Write("BEQ");
+            this.instructionDetails.Instruction = "BEQ";
             int data = Relative();
             if(GetZeroFlag() == 1) {
                 this.pc = (Byte)(this.pc + data);
@@ -405,7 +404,7 @@ namespace NES.CPU {
         }
 
         public void BIT(NES.CPU.AddressingMode addressingMode) {
-            Debug.Write("BIT ");
+            this.instructionDetails.Instruction = "BIT";
             int operAnd;
             switch (addressingMode) {
                 case AddressingMode.ZeroPage:
@@ -424,7 +423,7 @@ namespace NES.CPU {
         }
 
         public void BMI() {
-            instructionDetails.Instruction = "BMI";
+            this.instructionDetails.Instruction = "BMI";
             int operand = Relative();
             if (GetNegativeFlag() == 1) {
                 pc = (ushort)(pc + operand);
@@ -434,7 +433,7 @@ namespace NES.CPU {
         }
 
         public void BNE() {
-            Debug.Write("BNE ");
+            this.instructionDetails.Instruction = "BNE";
             int operand = Relative();
             if ((this.sr & 0b00000010) == 0) {
                 pc = (ushort)(pc + operand);
@@ -444,7 +443,7 @@ namespace NES.CPU {
         }
 
         public void BPL() {
-            Debug.Write("BPL ");
+            this.instructionDetails.Instruction = "BPL";
             int operand = Relative();
             if ((this.sr & 0b10000000) == 0) {
                 pc = (ushort)(pc + operand);
@@ -460,19 +459,22 @@ namespace NES.CPU {
         }
 
         public void BVC() {
+            this.instructionDetails.Instruction = "BVC";
             throw new NotImplementedException();
         }
 
         public void BVS() {
+            this.instructionDetails.Instruction = "BVS";
             throw new NotImplementedException();
         }
 
         public void CLV() {
+            this.instructionDetails.Instruction = "CLV";
             throw new NotImplementedException();
         }
 
         public void CMP(NES.CPU.AddressingMode addressingMode) {
-            Debug.Write("CMP ");
+            this.instructionDetails.Instruction = "CMP";
             int data;
             switch (addressingMode) {
                 case AddressingMode.Immediate:
@@ -522,45 +524,53 @@ namespace NES.CPU {
         }
 
         public void CPX() {
+            this.instructionDetails.Instruction = "CPX";
             throw new NotImplementedException();
         }
 
         public void CPY() {
+            this.instructionDetails.Instruction = "CPY";
             throw new NotImplementedException();
         }
 
         public void DEC() {
+            this.instructionDetails.Instruction = "DEC";
             throw new NotImplementedException();
         }
 
         public void DEX() {
+            this.instructionDetails.Instruction = "DEX";
             throw new NotImplementedException();
         }
 
         public void DEY() {
+            this.instructionDetails.Instruction = "DEY";
             throw new NotImplementedException();
         }
 
         public void EOR() {
+            this.instructionDetails.Instruction = "EOR";
             throw new NotImplementedException();
         }
 
         public void INC() {
+            this.instructionDetails.Instruction = "INC";
             throw new NotImplementedException();
         }
 
         public void INX() {
-            Debug.WriteLine("INX");
+            this.instructionDetails.Instruction = "INX";
             this.x++;
             this.CpuCycleCounter += 2;
         }
 
         public void INY() {
+            this.instructionDetails.Instruction = "INY";
             throw new NotImplementedException();
         }
 
         public void JMP(NES.CPU.AddressingMode addressingMode) {
-            Debug.Write("JMP ");
+            this.instructionDetails.Instruction = "JMP";
             int operand;
             switch (addressingMode) {
                 case AddressingMode.Absolute:
@@ -577,11 +587,12 @@ namespace NES.CPU {
         }
 
         public void JSR() {
+            this.instructionDetails.Instruction = "JSR";
             throw new NotImplementedException();
         }
 
         public void LDA(NES.CPU.AddressingMode addressingMode) {
-            Debug.Write("LDA ");
+            this.instructionDetails.Instruction = "LDA";
             int operand;
             switch (addressingMode) {
                 case AddressingMode.Immediate:
@@ -620,7 +631,7 @@ namespace NES.CPU {
         }
 
         public void LDX(NES.CPU.AddressingMode addressingMode) {
-            Debug.Write("LDX ");
+            this.instructionDetails.Instruction = "LDX";
             int operand;
             switch (addressingMode) {
                 case AddressingMode.Immediate:
@@ -646,59 +657,72 @@ namespace NES.CPU {
         }
 
         public void LDY() {
+            this.instructionDetails.Instruction = "LDY";
             throw new NotImplementedException();
         }
 
         public void LSR() {
+            this.instructionDetails.Instruction = "LSR";
             throw new NotImplementedException();
         }
 
         public void NOP() {
+            this.instructionDetails.Instruction = "NOP";
             throw new NotImplementedException();
         }
 
         public void ORA() {
+            this.instructionDetails.Instruction = "ORA";
             throw new NotImplementedException();
         }
 
         public void PHA() {
+            this.instructionDetails.Instruction = "PHA";
             throw new NotImplementedException();
         }
 
         public void PHP() {
+            this.instructionDetails.Instruction = "PHP";
             throw new NotImplementedException();
         }
 
         public void PLA() {
+            this.instructionDetails.Instruction = "PLA";
             throw new NotImplementedException();
         }
 
         public void PLP() {
+            this.instructionDetails.Instruction = "PLP";
             throw new NotImplementedException();
         }
 
         public void ROL() {
+            this.instructionDetails.Instruction = "ROL";
             throw new NotImplementedException();
         }
 
         public void ROR() {
+            this.instructionDetails.Instruction = "ROR";
             throw new NotImplementedException();
         }
 
         public void RTI() {
+            this.instructionDetails.Instruction = "RTI";
             throw new NotImplementedException();
         }
 
         public void RTS() {
+            this.instructionDetails.Instruction = "RTS";
             throw new NotImplementedException();
         }
 
         public void SBC() {
+            this.instructionDetails.Instruction = "SBC";
             throw new NotImplementedException();
         }
 
         public void STA(NES.CPU.AddressingMode addressingMode) {
-            Debug.Write("STA ");
+            this.instructionDetails.Instruction = "STA";
             int operand;
             switch (addressingMode) {
                 case AddressingMode.ZeroPage:
@@ -734,7 +758,7 @@ namespace NES.CPU {
         }
 
         public void STX(NES.CPU.AddressingMode addressingMode) {
-            Debug.Write("STX ");
+            this.instructionDetails.Instruction = "STX";
             int operAnd;
             switch (addressingMode) {
                 case AddressingMode.ZeroPage:
@@ -753,38 +777,42 @@ namespace NES.CPU {
 
             }
         }
-
-
-
         public void STY() {
+            this.instructionDetails.Instruction = "STY";
             throw new NotImplementedException();
         }
 
         public void TAX() {
+            this.instructionDetails.Instruction = "TAX";
             throw new NotImplementedException();
         }
 
         public void TAY() {
+            this.instructionDetails.Instruction = "TAY";
             throw new NotImplementedException();
         }
 
         public void TSX() {
+            this.instructionDetails.Instruction = "TSX";
             throw new NotImplementedException();
         }
 
         public void TXA() {
+            this.instructionDetails.Instruction = "TXA";
             Debug.WriteLine("TXA");
             this.ac = this.x;
             this.CpuCycleCounter += 2;
         }
 
         public void TXS() {
+            this.instructionDetails.Instruction = "TXS";
             Debug.WriteLine("TXS");
             this.sp = this.x;
             this.CpuCycleCounter += 2;
         }
 
         public void TYA() {
+            this.instructionDetails.Instruction = "TYA";
             throw new NotImplementedException();
         }
 

@@ -59,7 +59,7 @@ namespace NES
                     //this.debugTextBlock.Text += e.ProgramCounter + " " + e.Opcode + " " + e.Instruction + " " + e.Operand + Environment.NewLine;
             //    });
             //}
-            Thread.Sleep(2000);
+            Thread.Sleep(500);
         }
 
         private void MenuItem_Click(object sender, RoutedEventArgs e) {
