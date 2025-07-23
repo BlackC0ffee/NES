@@ -41,7 +41,6 @@ namespace NES.Console
         }
 
         public void Run() {
-            DebugOutput = "Hello World!!!";
             this.cpu.Run();
         }
     }
