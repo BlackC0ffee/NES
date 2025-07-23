@@ -14,8 +14,8 @@
             </MenuItem>
             <MenuItem Header="_Reset" Click="MenuItem_Click" />
         </Menu>
-        <StackPanel>
-            <DataGrid x:Name="memoryMapDataGrid" Height="100">
+        <StackPanel HorizontalAlignment="Left">
+            <DataGrid x:Name="memoryMapDataGrid" Height="416" VerticalScrollBarVisibility="Visible">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Program Counter" Binding="{Binding ProgramCounter}"/>
                     <DataGridTextColumn Header="Opcode" Binding="{Binding Opcode}"/>

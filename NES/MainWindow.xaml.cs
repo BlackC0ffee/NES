@@ -48,6 +48,8 @@ namespace NES
             
             this.memoryMapDataGrid.Dispatcher.Invoke(() => {
                 this.memoryMapDataGrid.Items.Add(e);
+                //this.memoryMapDataGrid.ScrollIntoView(this.memoryMapDataGrid.Items.GetItemAt(this.memoryMapDataGrid.Items.Count - 1));
+                this.memoryMapDataGrid.ScrollIntoView(this.memoryMapDataGrid.Items[this.memoryMapDataGrid.Items.Count - 1]);
             });
             // Check if we are on the UI thread
             //if (this.debugTextBlock.Dispatcher.CheckAccess()) {
