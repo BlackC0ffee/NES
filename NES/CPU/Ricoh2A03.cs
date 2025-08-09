@@ -859,48 +859,56 @@ namespace NES.CPU {
 
         private int Absolute() {
             int operand = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
+            this.instructionDetails.Operand = $"${operand:X4}";
             Debug.WriteLine($"${operand:X4}");
             return operand;
         }
 
         private int AbsoluteX() {
             int operand =this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
+            this.instructionDetails.Operand = $"${operand:X4},X";
             Debug.WriteLine($"${operand:X4},X");
             return operand + this.x;
         }
 
         private int AbsoluteY() {
             int operand = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
+            this.instructionDetails.Operand = $"${operand:X4},Y";
             Debug.WriteLine($"${operand:X4},Y");
             return operand + this.y;
         }
 
         private int Immediate() {
             int operand = cPUMemoryMap[++pc];
+            this.instructionDetails.Operand = $"#{operand:X2}";
             Debug.WriteLine($"#{operand:X2}");
             return operand;
         }
 
         private int Relative() {
             sbyte operand = (sbyte)this.cPUMemoryMap[++pc];
+            this.instructionDetails.Operand = $"${operand:X2}";
             Debug.WriteLine($"${operand:X2}");
             return operand;
         }
 
         private int ZeroPage() {
             int operand = this.cPUMemoryMap[++pc];
+            this.instructionDetails.Operand = $"${operand:X2}";
             Debug.WriteLine($"${operand:X2}");
             return (0b00000000 | operand);
         }
 
         private int ZeroPageX() {
             Byte operand = this.cPUMemoryMap[++pc];
+            this.instructionDetails.Operand = $"${operand:X2},X";
             Debug.WriteLine($"${operand:X2},X");
             return (0b00000000 | (Byte)(operand + this.x));
         }
 
         private int Indirect() {
             int operand = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
+            this.instructionDetails.Operand = $"({operand:X4})";
             Debug.WriteLine($"({operand:X4})");
             //TODO: add operand overflow bug where eg 20FF becomes 2000 instead of 2100
             return this.cPUMemoryMap[operand] | (this.cPUMemoryMap[++operand] << 8);
@@ -908,6 +916,7 @@ namespace NES.CPU {
 
         private int XIndirect() {
             int operand = this.cPUMemoryMap[++pc];
+            this.instructionDetails.Operand = $"({operand:X2},X)";
             Debug.WriteLine($"({operand:X2},X)");
             int zeroPageAdr = operand + x;
             return this.cPUMemoryMap[zeroPageAdr] | (this.cPUMemoryMap[++zeroPageAdr] << 8);
@@ -915,6 +924,7 @@ namespace NES.CPU {
 
         private int IndirectY() {
             int operand = this.cPUMemoryMap[++pc];
+            this.instructionDetails.Operand = $"({operand:X2}),Y";
             Debug.WriteLine($"({operand:X2}),Y");
             return (this.cPUMemoryMap[operand] | (this.cPUMemoryMap[++operand] << 8)) + y;
         }
