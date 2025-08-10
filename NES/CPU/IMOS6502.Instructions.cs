@@ -48,8 +48,8 @@ namespace NES.CPU
         void CLI(); //clear interrupt disable
         void CLV(); //clear overflow
         void CMP(NES.CPU.AddressingMode addressingMod); //compare(with accumulator)
-        void CPX(); //compare with X
-        void CPY(); //compare with Y
+        void CPX(NES.CPU.AddressingMode addressingMode); //compare with X
+        void CPY(NES.CPU.AddressingMode addressingMode); //compare with Y
         void DEC(); //decrement
         void DEX(); //decrement X
         void DEY(); //decrement Y

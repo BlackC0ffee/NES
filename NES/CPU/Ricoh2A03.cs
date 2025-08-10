@@ -547,13 +547,49 @@ namespace NES.CPU {
             }
         }
 
-        public void CPX() {
+        public void CPX(NES.CPU.AddressingMode addressingMode) {
             this.instructionDetails.Instruction = "CPX";
+            int operand;
+            int testData;
+            switch (addressingMode) {
+                case AddressingMode.Immediate:
+                    operand = Immediate();
+                    this.CpuCycleCounter += 2;
+                    break;
+                case AddressingMode.ZeroPage:
+                    operand = ZeroPage();
+                    this.CpuCycleCounter += 3;
+                    break;
+                case AddressingMode.Absolute:
+                    operand = Absolute();
+                    this.CpuCycleCounter += 4;
+                    break;
+                default:
+                    throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
+            }
+            testData = this.x - operand;
             throw new NotImplementedException();
         }
 
-        public void CPY() {
+        public void CPY(NES.CPU.AddressingMode addressingMode) {
             this.instructionDetails.Instruction = "CPY";
+            int operand;
+            switch (addressingMode) {
+                case AddressingMode.Immediate:
+                    operand = Immediate();
+                    this.CpuCycleCounter += 2;
+                    break;
+                case AddressingMode.ZeroPage:
+                    operand = ZeroPage();
+                    this.CpuCycleCounter += 3;
+                    break;
+                case AddressingMode.Absolute:
+                    operand = Absolute();
+                    this.CpuCycleCounter += 4;
+                    break;
+                default:
+                    throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
+            }
             throw new NotImplementedException();
         }
 
