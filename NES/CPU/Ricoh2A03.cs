@@ -126,9 +126,16 @@ namespace NES.CPU {
                 case 0xad: LDA(AddressingMode.Absolute); break;
                 case 0xb0: BCS(); break;
                 case 0xb8: CLV(); break;
+                case 0xc1: CMP(AddressingMode.XIndirect); break;
+                case 0xc5: CMP(AddressingMode.ZeroPage); break;
                 case 0xc9: CMP(AddressingMode.Immediate); break;
+                case 0xcd: CMP(AddressingMode.Absolute); break;
                 case 0xd0: BNE(); break;
+                case 0xd1: CMP(AddressingMode.IndirectY); break;
+                case 0xd5: CMP(AddressingMode.ZeroPageX); break;
                 case 0xd8: CLD(); break;
+                case 0xd9: CMP(AddressingMode.AbsoluteY); break;
+                case 0xdd: CMP(AddressingMode.AbsoluteX); break;
                 case 0xe8: INX(); break;
                 case 0xf0: BEQ(); break;
                 default: throw new NotImplementedException($"Instruction with opcode {opcodes:X} not found"); break;
@@ -487,34 +494,39 @@ namespace NES.CPU {
 
         public void CMP(NES.CPU.AddressingMode addressingMode) {
             this.instructionDetails.Instruction = "CMP";
-            int data;
+            int operand;
             switch (addressingMode) {
                 case AddressingMode.Immediate:
-                    data = Immediate();                  
+                    operand = Immediate();                  
                     this.CpuCycleCounter += 2;
                     break;
                 case AddressingMode.ZeroPage:
-                    data = ZeroPage();
+                    operand = ZeroPage();
                     this.CpuCycleCounter += 3;
                     break;
                 case AddressingMode.ZeroPageX:
-                    
-                    throw new NotImplementedException();
+                    operand = ZeroPageX();
+                    this.CpuCycleCounter += 4;
                     break;
                 case AddressingMode.Absolute:
-                    throw new NotImplementedException();
+                    operand = Absolute();
+                    this.CpuCycleCounter += 4;
                     break;
                 case AddressingMode.AbsoluteX:
-                    throw new NotImplementedException();
+                    operand= AbsoluteX();
+                    this.CpuCycleCounter += 4; // Bugged
                     break;
                 case AddressingMode.AbsoluteY:
-                    throw new NotImplementedException();
+                    operand = AbsoluteY();
+                    this.CpuCycleCounter += 4; // Bugged
                     break;
                 case AddressingMode.XIndirect:
-                    throw new NotImplementedException();
+                    operand = XIndirect();
+                    this.CpuCycleCounter += 6;
                     break;
                 case AddressingMode.IndirectY:
-                    throw new NotImplementedException();
+                    operand = IndirectY();
+                    this.CpuCycleCounter += 5; //bugged
                     break;
                 default:
                     throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
@@ -522,12 +534,12 @@ namespace NES.CPU {
 
             // http://www.6502.org/tutorials/compare_instructions.html
             this.sr = (Byte)(sr & 0b10111111); // clears the N-bit (7) in the Status Register. For this operation we start with a 0
-            int n = (data | 0b01000000); // determine the 7th bit (negative flag) of the operand data.
-            if (this.ac < data) {
+            int n = (operand | 0b01000000); // determine the 7th bit (negative flag) of the operand data.
+            if (this.ac < operand) {
                 this.sr = (Byte)(sr | n); // set the N-Bit with the result of the 
-            } else if (this.ac == data) {
+            } else if (this.ac == operand) {
                 this.sr = (Byte)(sr | 0b00000011); //Sets the zero and carry bit to 1. the N-bit stays 0
-            } else if (this.ac > data) {
+            } else if (this.ac > operand) {
                 this.sr = (Byte)(sr | 0b00000010); //Sets the zero bit to 1. the N-bit stays gets
                 this.sr = (Byte)(sr | n); // set the N-Bit with the result of the
             } else {
