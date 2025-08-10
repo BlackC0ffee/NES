@@ -359,7 +359,6 @@ namespace NES.CPU {
                 case AddressingMode.Absolute:
                     data = Absolute();
                     break;
-
                 case AddressingMode.ZeroPageX:
                     data = ZeroPageX();
                     break;
@@ -460,7 +459,10 @@ namespace NES.CPU {
 
         public void BVC() {
             this.instructionDetails.Instruction = "BVC";
-            throw new NotImplementedException();
+            int operand = Relative();
+            if (GetCarryFlag() == 0) {
+                pc = (ushort)(pc + operand);
+            }
         }
 
         public void BVS() {
