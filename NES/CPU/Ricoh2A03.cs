@@ -125,6 +125,7 @@ namespace NES.CPU {
                 case 0xa9: LDA(AddressingMode.Immediate); break;
                 case 0xad: LDA(AddressingMode.Absolute); break;
                 case 0xb0: BCS(); break;
+                case 0xb8: CLV(); break;
                 case 0xc9: CMP(AddressingMode.Immediate); break;
                 case 0xd0: BNE(); break;
                 case 0xd8: CLD(); break;
@@ -250,6 +251,13 @@ namespace NES.CPU {
             Byte mask = 0b00010000;
             sr = (Byte)(sr ^ mask);
             this.CpuCycleCounter += 7;
+        }
+
+        public void CLV() {
+            this.instructionDetails.Instruction = "CLV";
+            Byte mask = 0b11111110;
+            sr = (Byte)(sr & mask);
+            this.CpuCycleCounter += 2;
         }
         #endregion
         public void ADC(NES.CPU.AddressingMode addressingMode) {
@@ -475,10 +483,7 @@ namespace NES.CPU {
             }
         }
 
-        public void CLV() {
-            this.instructionDetails.Instruction = "CLV";
-            throw new NotImplementedException();
-        }
+
 
         public void CMP(NES.CPU.AddressingMode addressingMode) {
             this.instructionDetails.Instruction = "CMP";
