@@ -101,6 +101,7 @@ namespace NES.CPU {
                 case 0x39: AND(AddressingMode.AbsoluteY); break;
                 case 0x3d: AND(AddressingMode.AbsoluteX); break;
                 case 0x4c: JMP(AddressingMode.Absolute); break;
+                case 0x50: BVC(); break;
                 case 0x61: ADC(AddressingMode.XIndirect); break;
                 case 0x65: ADC(AddressingMode.ZeroPage); break;
                 case 0x69: ADC(AddressingMode.Immediate); break;
