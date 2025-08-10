@@ -106,6 +106,7 @@ namespace NES.CPU {
                 case 0x65: ADC(AddressingMode.ZeroPage); break;
                 case 0x69: ADC(AddressingMode.Immediate); break;
                 case 0x6D: ADC(AddressingMode.Absolute); break;
+                case 0x70: BVS(); break;
                 case 0x71: ADC(AddressingMode.IndirectY); break;
                 case 0x75: ADC(AddressingMode.ZeroPageX); break;
                 case 0x78: SEI(); break;
@@ -468,7 +469,10 @@ namespace NES.CPU {
 
         public void BVS() {
             this.instructionDetails.Instruction = "BVS";
-            throw new NotImplementedException();
+            int operand = Relative();
+            if (GetOverFlag() == 1) {
+                pc = (ushort)(pc + operand);
+            }
         }
 
         public void CLV() {
