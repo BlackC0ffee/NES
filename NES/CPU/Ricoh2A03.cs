@@ -61,18 +61,7 @@ namespace NES.CPU {
         }
 
         internal void Demo() {
-
-            SEC();
-            SED();
-            SEI();
-            BRK();
-            Debug.WriteLine(Convert.ToString(sr, toBase: 2));
-            CLC();
-            Debug.WriteLine(Convert.ToString(sr, toBase: 2));
-            CLI();
-            Debug.WriteLine(Convert.ToString(sr, toBase: 2));
-            CLD();
-            Debug.WriteLine(Convert.ToString(sr, toBase: 2));
+            DEC(AddressingMode.ZeroPage);
         }
 
 
@@ -128,14 +117,18 @@ namespace NES.CPU {
                 case 0xb8: CLV(); break;
                 case 0xc1: CMP(AddressingMode.XIndirect); break;
                 case 0xc5: CMP(AddressingMode.ZeroPage); break;
+                case 0xc6: DEC(AddressingMode.ZeroPage); break;
                 case 0xc9: CMP(AddressingMode.Immediate); break;
                 case 0xcd: CMP(AddressingMode.Absolute); break;
+                case 0xce: DEC(AddressingMode.Absolute); break;
                 case 0xd0: BNE(); break;
                 case 0xd1: CMP(AddressingMode.IndirectY); break;
                 case 0xd5: CMP(AddressingMode.ZeroPageX); break;
+                case 0xd6: DEC(AddressingMode.ZeroPageX); break;
                 case 0xd8: CLD(); break;
                 case 0xd9: CMP(AddressingMode.AbsoluteY); break;
                 case 0xdd: CMP(AddressingMode.AbsoluteX); break;
+                case 0xde: DEC(AddressingMode.AbsoluteX); break;
                 case 0xe8: INX(); break;
                 case 0xf0: BEQ(); break;
                 default: throw new NotImplementedException($"Instruction with opcode {opcodes:X} not found"); break;
@@ -584,9 +577,30 @@ namespace NES.CPU {
             Compare(operand, ref this.y);
         }
 
-        public void DEC() {
+        public void DEC(NES.CPU.AddressingMode addressingMode) {
             this.instructionDetails.Instruction = "DEC";
-            throw new NotImplementedException();
+            int memory;
+            ushort data;
+            switch (addressingMode) {
+                case AddressingMode.ZeroPage:
+                    memory = ZeroPage();
+                    break;
+                case AddressingMode.ZeroPageX:
+                    memory = ZeroPageX();
+                    break;
+                case AddressingMode.Absolute:
+                    memory = Absolute();
+                    break;
+                case AddressingMode.AbsoluteX:
+                    memory = AbsoluteX();
+                    break;
+                default:
+                    throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
+            }
+
+            data = (ushort)memory;
+            data = --data;
+            UpdateMemory(addressingMode, data);
         }
 
         public void DEX() {
@@ -978,6 +992,29 @@ namespace NES.CPU {
             this.instructionDetails.Operand = $"({operand:X2}),Y";
             Debug.WriteLine($"({operand:X2}),Y");
             return (this.cPUMemoryMap[operand] | (this.cPUMemoryMap[++operand] << 8)) + y;
+        }
+
+        private void UpdateMemory(AddressingMode addressingMode, int memoryData) {
+            switch (addressingMode) {
+                case AddressingMode.ZeroPage:
+                    this.cPUMemoryMap[pc] = (byte)memoryData;
+                    break;
+                case AddressingMode.ZeroPageX:
+                    throw new NotImplementedException();
+                case AddressingMode.Absolute:
+                    throw new NotImplementedException();
+                case AddressingMode.AbsoluteX:
+                    throw new NotImplementedException();
+                case AddressingMode.AbsoluteY:
+                    throw new NotImplementedException();
+                case AddressingMode.XIndirect:
+                    throw new NotImplementedException();
+                case AddressingMode.IndirectY:
+                    throw new NotImplementedException();
+                default:
+                    throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
+            }
+
         }
 
         private void Compare(int Operand, ref Byte CompareReference) {

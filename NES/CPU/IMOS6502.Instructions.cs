@@ -50,7 +50,7 @@ namespace NES.CPU
         void CMP(NES.CPU.AddressingMode addressingMod); //compare(with accumulator)
         void CPX(NES.CPU.AddressingMode addressingMode); //compare with X
         void CPY(NES.CPU.AddressingMode addressingMode); //compare with Y
-        void DEC(); //decrement
+        void DEC(NES.CPU.AddressingMode addressingMode); //decrement
         void DEX(); //decrement X
         void DEY(); //decrement Y
         void EOR(); //exclusive or(with accumulator)
