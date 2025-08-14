@@ -534,23 +534,14 @@ namespace NES.CPU {
 
             // http://www.6502.org/tutorials/compare_instructions.html
             this.sr = (Byte)(sr & 0b10111111); // clears the N-bit (7) in the Status Register. For this operation we start with a 0
-            int n = (operand | 0b01000000); // determine the 7th bit (negative flag) of the operand data.
-            if (this.ac < operand) {
-                this.sr = (Byte)(sr | n); // set the N-Bit with the result of the 
-            } else if (this.ac == operand) {
-                this.sr = (Byte)(sr | 0b00000011); //Sets the zero and carry bit to 1. the N-bit stays 0
-            } else if (this.ac > operand) {
-                this.sr = (Byte)(sr | 0b00000010); //Sets the zero bit to 1. the N-bit stays gets
-                this.sr = (Byte)(sr | n); // set the N-Bit with the result of the
-            } else {
-                throw new Exception("How?");
-            }
+            Compare(operand, ref this.ac);
         }
 
         public void CPX(NES.CPU.AddressingMode addressingMode) {
             this.instructionDetails.Instruction = "CPX";
             int operand;
             int testData;
+            int negativeBit;
             switch (addressingMode) {
                 case AddressingMode.Immediate:
                     operand = Immediate();
@@ -567,8 +558,8 @@ namespace NES.CPU {
                 default:
                     throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
             }
-            testData = this.x - operand;
-            throw new NotImplementedException();
+
+            Compare(operand, ref this.x);
         }
 
         public void CPY(NES.CPU.AddressingMode addressingMode) {
@@ -590,7 +581,7 @@ namespace NES.CPU {
                 default:
                     throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
             }
-            throw new NotImplementedException();
+            Compare(operand, ref this.y);
         }
 
         public void DEC() {
@@ -987,6 +978,21 @@ namespace NES.CPU {
             this.instructionDetails.Operand = $"({operand:X2}),Y";
             Debug.WriteLine($"({operand:X2}),Y");
             return (this.cPUMemoryMap[operand] | (this.cPUMemoryMap[++operand] << 8)) + y;
+        }
+
+        private void Compare(int Operand, ref Byte CompareReference) {
+            int testData = CompareReference - Operand;
+            int negativeBit = (testData | 0b01000000); // determine the 7th bit (negative flag) of the operand data.
+            if (CompareReference < testData) {
+                this.sr = (Byte)(sr | negativeBit); // set the N-Bit with the result of the 
+            } else if (CompareReference == testData) {
+                this.sr = (Byte)(sr | 0b00000011); //Sets the zero and carry bit to 1. the N-bit stays 0
+            } else if (CompareReference > testData) {
+                this.sr = (Byte)(sr | 0b00000010); //Sets the zero bit to 1. the N-bit stays gets
+                this.sr = (Byte)(sr | negativeBit); // set the N-Bit with the result of the
+            } else {
+                throw new Exception("How?");
+            }
         }
         #endregion
     }
