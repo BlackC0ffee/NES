@@ -922,9 +922,11 @@ namespace NES.CPU {
         }
 
         private int Absolute() {
-            int operand = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
+            byte low = this.cPUMemoryMap[++pc];
+            byte high = this.cPUMemoryMap[++pc];
+            this.operand = (ushort)(low | (high << 8));
             this.instructionDetails.Operand = $"${operand:X4}";
-            Debug.WriteLine($"${operand:X4}");
+
             return operand;
         }
 
@@ -942,11 +944,13 @@ namespace NES.CPU {
             return operand + this.y;
         }
 
-        private int Immediate() {
-            int operand = cPUMemoryMap[++pc];
+        private int Immediate() { //Immediate: The value at the rom address equals the the instruction value
+            byte low = this.cPUMemoryMap[++pc];
+            byte high = 0b0000;
+            this.operand = (ushort)(low | (high << 8));
             this.instructionDetails.Operand = $"#{operand:X2}";
-            Debug.WriteLine($"#{operand:X2}");
-            return operand;
+
+            return this.operand;
         }
 
         private int Relative() {
@@ -956,18 +960,25 @@ namespace NES.CPU {
             return operand;
         }
 
-        private int ZeroPage() {
-            this.operand = ++pc; //Store the effective address
-            int memoryValue = this.cPUMemoryMap[this.operand]; //Gets value from the memory address
+        private int ZeroPage() { //
+            byte low = this.cPUMemoryMap[++pc];
+            byte high = 0b0000;
+            this.operand = (ushort)(low | (high << 8));
             this.instructionDetails.Operand = $"${this.operand:X2}";
-            return (0b00000000 | memoryValue);
+            
+            int memoryValue = this.cPUMemoryMap[this.operand]; //Gets value from the ZeroPage in RAM
+            return memoryValue;
         }
 
         private int ZeroPageX() {
-            this.operand = ++pc;
-            Byte memoryValue = this.cPUMemoryMap[this.operand];
+            byte low = (byte)(this.cPUMemoryMap[++pc] + this.x);
+            byte high = 0b0000;
+            this.operand = (ushort)(low | (high << 8));
             this.instructionDetails.Operand = $"${this.operand:X2},X";
-            return (0b00000000 | (Byte)(operand + this.x)); //Might be buggy in case of an overflow?
+
+
+            int memoryValue = this.cPUMemoryMap[this.operand];
+            return memoryValue;
         }
 
         private int Indirect() {
@@ -999,7 +1010,7 @@ namespace NES.CPU {
                     this.cPUMemoryMap[this.operand] = (byte)memoryData;
                     break;
                 case AddressingMode.ZeroPageX:
-                    this.cPUMemoryMap[pc+this.x] = (byte)memoryData;
+                    this.cPUMemoryMap[this.operand+this.x] = (byte)memoryData;
                     break;
                 case AddressingMode.Absolute:
                     throw new NotImplementedException();
