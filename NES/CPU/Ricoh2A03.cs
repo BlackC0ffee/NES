@@ -33,7 +33,7 @@ namespace NES.CPU {
         private Byte sr; // status register [NV-BDIZC]
         private Byte sp; // stack pointer
 
-        private ushort effeciveAddress;
+        private ushort operand;
         private ulong CpuCycleCounter;
 
 
@@ -957,17 +957,17 @@ namespace NES.CPU {
         }
 
         private int ZeroPage() {
-            this.effeciveAddress = ++pc; //Store the effective address
-            int operand = this.cPUMemoryMap[this.effeciveAddress]; //Gets value from the memory address
-            this.instructionDetails.Operand = $"${this.effeciveAddress:X2}";
-            return (0b00000000 | operand);
+            this.operand = ++pc; //Store the effective address
+            int memoryValue = this.cPUMemoryMap[this.operand]; //Gets value from the memory address
+            this.instructionDetails.Operand = $"${this.operand:X2}";
+            return (0b00000000 | memoryValue);
         }
 
         private int ZeroPageX() {
-            Byte operand = this.cPUMemoryMap[++pc];
-            this.instructionDetails.Operand = $"${operand:X2},X";
-            Debug.WriteLine($"${operand:X2},X");
-            return (0b00000000 | (Byte)(operand + this.x));
+            this.operand = ++pc;
+            Byte memoryValue = this.cPUMemoryMap[this.operand];
+            this.instructionDetails.Operand = $"${this.operand:X2},X";
+            return (0b00000000 | (Byte)(operand + this.x)); //Might be buggy in case of an overflow?
         }
 
         private int Indirect() {
@@ -996,7 +996,7 @@ namespace NES.CPU {
         private void UpdateMemory(AddressingMode addressingMode, int memoryData) {
             switch (addressingMode) {
                 case AddressingMode.ZeroPage:
-                    this.cPUMemoryMap[this.effeciveAddress] = (byte)memoryData;
+                    this.cPUMemoryMap[this.operand] = (byte)memoryData;
                     break;
                 case AddressingMode.ZeroPageX:
                     this.cPUMemoryMap[pc+this.x] = (byte)memoryData;
