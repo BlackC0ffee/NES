@@ -33,7 +33,9 @@ namespace NES.CPU {
         private Byte sr; // status register [NV-BDIZC]
         private Byte sp; // stack pointer
 
+        private ushort effeciveAddress;
         private ulong CpuCycleCounter;
+
 
         private NES.CPU.CPUMemoryMap cPUMemoryMap;
         //public event Instrct
@@ -533,8 +535,6 @@ namespace NES.CPU {
         public void CPX(NES.CPU.AddressingMode addressingMode) {
             this.instructionDetails.Instruction = "CPX";
             int operand;
-            int testData;
-            int negativeBit;
             switch (addressingMode) {
                 case AddressingMode.Immediate:
                     operand = Immediate();
@@ -551,7 +551,6 @@ namespace NES.CPU {
                 default:
                     throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
             }
-
             Compare(operand, ref this.x);
         }
 
@@ -958,9 +957,9 @@ namespace NES.CPU {
         }
 
         private int ZeroPage() {
-            int operand = this.cPUMemoryMap[++pc];
-            this.instructionDetails.Operand = $"${operand:X2}";
-            Debug.WriteLine($"${operand:X2}");
+            this.effeciveAddress = ++pc; //Store the effective address
+            int operand = this.cPUMemoryMap[this.effeciveAddress]; //Gets value from the memory address
+            this.instructionDetails.Operand = $"${this.effeciveAddress:X2}";
             return (0b00000000 | operand);
         }
 
@@ -997,10 +996,11 @@ namespace NES.CPU {
         private void UpdateMemory(AddressingMode addressingMode, int memoryData) {
             switch (addressingMode) {
                 case AddressingMode.ZeroPage:
-                    this.cPUMemoryMap[pc] = (byte)memoryData;
+                    this.cPUMemoryMap[this.effeciveAddress] = (byte)memoryData;
                     break;
                 case AddressingMode.ZeroPageX:
-                    throw new NotImplementedException();
+                    this.cPUMemoryMap[pc+this.x] = (byte)memoryData;
+                    break;
                 case AddressingMode.Absolute:
                     throw new NotImplementedException();
                 case AddressingMode.AbsoluteX:
