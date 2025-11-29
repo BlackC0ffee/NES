@@ -930,14 +930,14 @@ namespace NES.CPU {
             return operand;
         }
 
-        private int AbsoluteX() {
+        //private int AbsoluteX() {
             int operand =this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
             this.instructionDetails.Operand = $"${operand:X4},X";
             Debug.WriteLine($"${operand:X4},X");
             return operand + this.x;
         }
 
-        private int AbsoluteY() {
+        //private int AbsoluteY() {
             int operand = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
             this.instructionDetails.Operand = $"${operand:X4},Y";
             Debug.WriteLine($"${operand:X4},Y");
@@ -976,20 +976,21 @@ namespace NES.CPU {
             this.operand = (ushort)(low | (high << 8));
             this.instructionDetails.Operand = $"${this.operand:X2},X";
 
-
             int memoryValue = this.cPUMemoryMap[this.operand];
             return memoryValue;
         }
 
         private int Indirect() {
-            int operand = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
+            byte low = (byte)(this.cPUMemoryMap[++pc]);
+            byte high = (byte)(this.cPUMemoryMap[++pc]);
+            this.operand = (ushort)(low | (high << 8));
             this.instructionDetails.Operand = $"({operand:X4})";
-            Debug.WriteLine($"({operand:X4})");
+
             //TODO: add operand overflow bug where eg 20FF becomes 2000 instead of 2100
-            return this.cPUMemoryMap[operand] | (this.cPUMemoryMap[++operand] << 8);
+            return this.operand;
         }
 
-        private int XIndirect() {
+        //private int XIndirect() {
             int operand = this.cPUMemoryMap[++pc];
             this.instructionDetails.Operand = $"({operand:X2},X)";
             Debug.WriteLine($"({operand:X2},X)");
@@ -997,14 +998,14 @@ namespace NES.CPU {
             return this.cPUMemoryMap[zeroPageAdr] | (this.cPUMemoryMap[++zeroPageAdr] << 8);
         }
 
-        private int IndirectY() {
+        //private int IndirectY() {
             int operand = this.cPUMemoryMap[++pc];
             this.instructionDetails.Operand = $"({operand:X2}),Y";
             Debug.WriteLine($"({operand:X2}),Y");
             return (this.cPUMemoryMap[operand] | (this.cPUMemoryMap[++operand] << 8)) + y;
         }
 
-        private void UpdateMemory(AddressingMode addressingMode, int memoryData) {
+        //private void UpdateMemory(AddressingMode addressingMode, int memoryData) {
             switch (addressingMode) {
                 case AddressingMode.ZeroPage:
                     this.cPUMemoryMap[this.operand] = (byte)memoryData;
