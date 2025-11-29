@@ -999,11 +999,13 @@ namespace NES.CPU {
             return this.operand;
         }
 
-        //private int IndirectY() {
-            int operand = this.cPUMemoryMap[++pc];
+        private int IndirectY() {
+            byte low = (byte)(this.cPUMemoryMap[++pc]);
+            byte high = (byte)(this.cPUMemoryMap[++pc]);
+            this.operand = (ushort)(low | (high << 8));
+            
             this.instructionDetails.Operand = $"({operand:X2}),Y";
-            Debug.WriteLine($"({operand:X2}),Y");
-            return (this.cPUMemoryMap[operand] | (this.cPUMemoryMap[++operand] << 8)) + y;
+            return this.operand + y;
         }
 
         //private void UpdateMemory(AddressingMode addressingMode, int memoryData) {
