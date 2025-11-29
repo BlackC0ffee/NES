@@ -930,11 +930,13 @@ namespace NES.CPU {
             return operand;
         }
 
-        //private int AbsoluteX() {
-            int operand =this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
+        private int AbsoluteX() {
+            byte low = this.cPUMemoryMap[++pc];
+            byte high = this.cPUMemoryMap[++pc];
+            this.operand = (ushort)(low | (high << 8));
+
             this.instructionDetails.Operand = $"${operand:X4},X";
-            Debug.WriteLine($"${operand:X4},X");
-            return operand + this.x;
+            return this.operand + this.x;
         }
 
         //private int AbsoluteY() {
@@ -1008,7 +1010,7 @@ namespace NES.CPU {
             return this.operand + y;
         }
 
-        //private void UpdateMemory(AddressingMode addressingMode, int memoryData) {
+        private void UpdateMemory(AddressingMode addressingMode, int memoryData) {
             switch (addressingMode) {
                 case AddressingMode.ZeroPage:
                     this.cPUMemoryMap[this.operand] = (byte)memoryData;
