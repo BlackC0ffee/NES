@@ -990,12 +990,13 @@ namespace NES.CPU {
             return this.operand;
         }
 
-        //private int XIndirect() {
-            int operand = this.cPUMemoryMap[++pc];
+        private int XIndirect() {
+            byte low = (byte)(this.cPUMemoryMap[++pc + this.x]);
+            byte high = (byte)(this.cPUMemoryMap[++pc] + this.x);
+            this.operand = (ushort)(low | (high << 8));
+
             this.instructionDetails.Operand = $"({operand:X2},X)";
-            Debug.WriteLine($"({operand:X2},X)");
-            int zeroPageAdr = operand + x;
-            return this.cPUMemoryMap[zeroPageAdr] | (this.cPUMemoryMap[++zeroPageAdr] << 8);
+            return this.operand;
         }
 
         //private int IndirectY() {
