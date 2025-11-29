@@ -939,10 +939,12 @@ namespace NES.CPU {
             return this.operand + this.x;
         }
 
-        //private int AbsoluteY() {
-            int operand = this.cPUMemoryMap[++pc] | (this.cPUMemoryMap[++pc] << 8);
+        private int AbsoluteY() {
+            byte low = this.cPUMemoryMap[++pc];
+            byte high = this.cPUMemoryMap[++pc];
+            this.operand = (ushort)(low | (high << 8));
+
             this.instructionDetails.Operand = $"${operand:X4},Y";
-            Debug.WriteLine($"${operand:X4},Y");
             return operand + this.y;
         }
 
