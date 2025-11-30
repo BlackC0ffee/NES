@@ -695,24 +695,24 @@ namespace NES.CPU {
 
         public void LDX(NES.CPU.AddressingMode addressingMode) {
             this.instructionDetails.Instruction = "LDX";
-            int operand;
+            int data;
             switch (addressingMode) {
                 case AddressingMode.Immediate:
-                    operand = Immediate();
-                    this.x = (Byte)operand; // Load next byte into x register
+                    data = Immediate();
+                    this.x = (Byte)data; // Load next byte into x register
                     this.CpuCycleCounter += 2;
                     break;
                 case AddressingMode.ZeroPage:
-                    throw new NotImplementedException();
+                    this.x = (Byte)ZeroPage();
                     break;
                 case AddressingMode.ZeroPageY:
                     throw new NotImplementedException();
                     break;
                 case AddressingMode.Absolute:
-                    throw new NotImplementedException();
+                    this.x = (Byte)Absolute();
                     break;
                 case AddressingMode.AbsoluteY:
-                    throw new NotImplementedException();
+                    this.x = (Byte)AbsoluteY();
                     break;
                 default:
                     throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
