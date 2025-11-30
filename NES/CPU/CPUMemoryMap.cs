@@ -40,6 +40,9 @@ namespace NES.CPU {
         public Byte this[int index] {
             get {
                 switch (index) {
+                    case >= 0x00 and <= 0x07FF:
+                        return this.RAM[index];
+                        break;
                     case >= 0x2000 and <= 0x2007:
                         return this.PPURegisters[index - 0x2000];
                     case >= 0x8000 and <= 0xBFFF:

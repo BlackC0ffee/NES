@@ -51,6 +51,7 @@ namespace NES
             this.memoryMapDataGrid.Dispatcher.Invoke(() => {
                 this.InstructionCollection.Add(e);
                 this.memoryMapDataGrid.ScrollIntoView(this.memoryMapDataGrid.Items[this.memoryMapDataGrid.Items.Count - 1]);
+                Debug.WriteLine(e.ProgramCounter.ToString() +": " + e.Instruction.ToString() + " " + e.Opcode.ToString() );
             });
             
             Thread.Sleep(500);

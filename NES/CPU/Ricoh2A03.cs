@@ -69,7 +69,6 @@ namespace NES.CPU {
 
 
         public void ExecuteInstruction(int opcodes) {
-            Debug.Write($"${this.pc:X}: "); // Writes the current Programcounter
             instructionDetails.ProgramCounter = $"${this.pc:X}";
             instructionDetails.Opcode = $"{opcodes:X}";
             switch (opcodes) {
@@ -863,16 +862,16 @@ namespace NES.CPU {
 
         public void TXA() {
             this.instructionDetails.Instruction = "TXA";
-            Debug.WriteLine("TXA");
             this.ac = this.x;
             this.CpuCycleCounter += 2;
+            this.pc++;
         }
 
         public void TXS() {
             this.instructionDetails.Instruction = "TXS";
-            Debug.WriteLine("TXS");
             this.sp = this.x;
             this.CpuCycleCounter += 2;
+            this.pc++;
         }
 
         public void TYA() {
@@ -960,7 +959,6 @@ namespace NES.CPU {
         private int Relative() {
             sbyte operand = (sbyte)this.cPUMemoryMap[++pc];
             this.instructionDetails.Operand = $"${operand:X2}";
-            Debug.WriteLine($"${operand:X2}");
             return operand;
         }
 
