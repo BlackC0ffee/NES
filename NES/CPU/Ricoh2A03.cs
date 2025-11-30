@@ -864,14 +864,14 @@ namespace NES.CPU {
             this.instructionDetails.Instruction = "TXA";
             this.ac = this.x;
             this.CpuCycleCounter += 2;
-            this.pc++;
+            //this.pc++;
         }
 
         public void TXS() {
             this.instructionDetails.Instruction = "TXS";
             this.sp = this.x;
             this.CpuCycleCounter += 2;
-            this.pc++;
+            //this.pc++;
         }
 
         public void TYA() {
