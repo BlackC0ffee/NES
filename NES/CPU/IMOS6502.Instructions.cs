@@ -61,7 +61,7 @@ namespace NES.CPU
         void JSR(); //jump subroutine
         void LDA(NES.CPU.AddressingMode addressingMode); //load accumulator
         void LDX(NES.CPU.AddressingMode addressingMode); //load X
-        void LDY(); //load Y
+        void LDY(NES.CPU.AddressingMode addressingMode); //load Y
         void LSR(); //logical shift right
         void NOP(); //no operation
         void ORA(); //or with accumulator
