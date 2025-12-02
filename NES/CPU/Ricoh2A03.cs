@@ -130,6 +130,7 @@ namespace NES.CPU {
                 case 0xc5: CMP(AddressingMode.ZeroPage); break;
                 case 0xc6: DEC(AddressingMode.ZeroPage); break;
                 case 0xc9: CMP(AddressingMode.Immediate); break;
+                case 0xca: DEX(); break;
                 case 0xcd: CMP(AddressingMode.Absolute); break;
                 case 0xce: DEC(AddressingMode.Absolute); break;
                 case 0xd0: BNE(); break;
@@ -613,7 +614,7 @@ namespace NES.CPU {
 
         public void DEX() {
             this.instructionDetails.Instruction = "DEX";
-            throw new NotImplementedException();
+            this.x = --this.x ;
         }
 
         public void DEY() {
@@ -666,37 +667,41 @@ namespace NES.CPU {
 
         public void LDA(NES.CPU.AddressingMode addressingMode) {
             this.instructionDetails.Instruction = "LDA";
-            int operand;
+            int data;
             switch (addressingMode) {
                 case AddressingMode.Immediate:
-                    operand = Immediate();
-                    this.ac = (Byte)operand;
+                    data = Immediate();
+                    this.ac = (Byte)data;
                     this.CpuCycleCounter += 2;
                     break;
                 case AddressingMode.ZeroPage:
-                    operand = ZeroPage();
-                    this.ac = (Byte)operand;
+                    data = ZeroPage();
+                    this.ac = (Byte)data;
                     this.CpuCycleCounter += 2;
                     break;
                 case AddressingMode.ZeroPageX:
                     throw new NotImplementedException();
                     break;
                 case AddressingMode.Absolute:
-                    operand = Absolute();
-                    this.ac = cPUMemoryMap[operand];
+                    data = Absolute();
+                    this.ac = cPUMemoryMap[data];
                     this.CpuCycleCounter += 4;
                     break;
                 case AddressingMode.AbsoluteX:
-                    throw new NotImplementedException();
+                    data = AbsoluteX();
+                    this.ac = cPUMemoryMap[data];
                     break;
                 case AddressingMode.AbsoluteY:
-                    throw new NotImplementedException();
+                    data = AbsoluteY();
+                    this.ac = cPUMemoryMap[data];
                     break;
                 case AddressingMode.XIndirect:
-                    throw new NotImplementedException();
+                    data = XIndirect();
+                    this.ac = cPUMemoryMap[data];
                     break;
                 case AddressingMode.IndirectY:
-                    throw new NotImplementedException();
+                    data = IndirectY();
+                    this.ac = cPUMemoryMap[data];
                     break;
                 default:
                     throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
