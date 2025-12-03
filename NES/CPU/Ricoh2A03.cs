@@ -305,8 +305,6 @@ namespace NES.CPU {
             }
             int c = this.sr & 0b00000001;
             
-
-
             int result = this.ac + data + c;
             
 
@@ -952,40 +950,67 @@ namespace NES.CPU {
             }
         }
 
+        private int Immediate() {
+            //Immediate: The value at the rom address equals the the instruction value.
+            //E.g LDA #07 Loads 07 into AC
+            byte low = this.cPUMemoryMap[++pc];
+            byte high = 0b0000;
+            this.operand = (ushort)(low | (high << 8));
+            this.instructionDetails.Operand = $"#{operand:X2}";
+            return this.operand;
+        }
+
         private int Absolute() {
+            //Absolute provides a 16-bit address from a memory location
+            //E.g. LDA $1020 loads the data @ address $1020 to AC (e.g. FF)
             byte low = this.cPUMemoryMap[++pc];
             byte high = this.cPUMemoryMap[++pc];
             this.operand = (ushort)(low | (high << 8));
             this.instructionDetails.Operand = $"${operand:X4}";
-
-            return operand;
+            return this.cPUMemoryMap[this.operand];
         }
 
         private int AbsoluteX() {
+            //AbsoluteX is similar to Absolute, but adds the value from the x-register to the operand to define the address
+            //E.g. if X contains 15 and we run the instruction LDA $1020, than the data will be loaded from $1035 to the AC
             byte low = this.cPUMemoryMap[++pc];
             byte high = this.cPUMemoryMap[++pc];
             this.operand = (ushort)(low | (high << 8));
 
             this.instructionDetails.Operand = $"${operand:X4},X";
-            return this.operand + this.x;
+            return this.cPUMemoryMap[this.operand + this.x];
         }
 
         private int AbsoluteY() {
+            //AbsoluteY is similar to Absolute, but adds the value from the x-register to the operand to define the address
+            //E.g. if Y contains 15 and we run the instruction LDA $1020, than the data will be loaded from $1035 to the AC
             byte low = this.cPUMemoryMap[++pc];
             byte high = this.cPUMemoryMap[++pc];
             this.operand = (ushort)(low | (high << 8));
 
             this.instructionDetails.Operand = $"${operand:X4},Y";
-            return operand + this.y;
+            return this.cPUMemoryMap[operand + this.y];
         }
 
-        private int Immediate() { //Immediate: The value at the rom address equals the the instruction value
+        private int ZeroPage() {
+            //ZeroPage is similar to Absolute, but loads from the zeropage.
+            //Because this is in the 256 range of the memory map. the high-byte is 00 and dont require an increment of the program counter.
+            //This makes this location "faster" to access as it require one CPU cycle less
+            //E.g. LDA $10 loads the data @ address $0010 to the AC
             byte low = this.cPUMemoryMap[++pc];
             byte high = 0b0000;
             this.operand = (ushort)(low | (high << 8));
-            this.instructionDetails.Operand = $"#{operand:X2}";
-
-            return this.operand;
+            this.instructionDetails.Operand = $"${this.operand:X2}";
+            return this.cPUMemoryMap[this.operand];
+        }
+        private int ZeroPageX() {
+            //ZeroPageX is similar to ZeroPage in combination with AbsoluteX where the X register data is added to the operand
+            //E.g. if X contains the value 15, then LDA $10,X loads the data from $0025 into the AC
+            byte low = this.cPUMemoryMap[++pc];
+            byte high = 0b0000;
+            this.operand = (ushort)(low | (high << 8));
+            this.instructionDetails.Operand = $"${this.operand:X2},X";
+            return this.cPUMemoryMap[this.operand + this.x];
         }
 
         private int Relative() {
@@ -994,52 +1019,48 @@ namespace NES.CPU {
             return operand;
         }
 
-        private int ZeroPage() { //
-            byte low = this.cPUMemoryMap[++pc];
-            byte high = 0b0000;
-            this.operand = (ushort)(low | (high << 8));
-            this.instructionDetails.Operand = $"${this.operand:X2}";
-            
-            int memoryValue = this.cPUMemoryMap[this.operand]; //Gets value from the ZeroPage in RAM
-            return memoryValue;
-        }
-
-        private int ZeroPageX() {
-            byte low = (byte)(this.cPUMemoryMap[++pc] + this.x);
-            byte high = 0b0000;
-            this.operand = (ushort)(low | (high << 8));
-            this.instructionDetails.Operand = $"${this.operand:X2},X";
-
-            int memoryValue = this.cPUMemoryMap[this.operand];
-            return memoryValue;
-        }
-
         private int Indirect() {
+            //Indirect, uses the content of the address and the next adress to find the effective address.
+            //Note: only JMP uses this function
+            //E.g. JMP ($1020). If Address $1020 has value FF and adress $1021 has 15. Then the program counter wil become 15FF
             byte low = (byte)(this.cPUMemoryMap[++pc]);
             byte high = (byte)(this.cPUMemoryMap[++pc]);
             this.operand = (ushort)(low | (high << 8));
             this.instructionDetails.Operand = $"({operand:X4})";
-
+            
+            low = (byte)(this.cPUMemoryMap[this.operand]);
+            high = (byte)(this.cPUMemoryMap[this.operand + 1]);
             //TODO: add operand overflow bug where eg 20FF becomes 2000 instead of 2100
-            return this.operand;
+            return (low | (high << 8));
         }
 
         private int XIndirect() {
+            //XIndirect, is a combination of ZeroPageX and Indirect.
+            //Once the "operand" is formed using the same method as ZeroPageX, a lookup is performed like Indirect
+            //E.g. if X contains the value 15, then LDA ($10,X) gets the address is looked up in $0025 and $0026.
+            //If $0025 contains 20 and $0026 contains 10. Then the data from $1020 will be loaded into the AC
             byte low = (byte)(this.cPUMemoryMap[++pc + this.x]);
-            byte high = (byte)(this.cPUMemoryMap[++pc] + this.x);
+            byte high = 0b0000;
             this.operand = (ushort)(low | (high << 8));
-
             this.instructionDetails.Operand = $"({operand:X2},X)";
-            return this.operand;
+
+            low = (byte)(this.cPUMemoryMap[this.operand] + this.x);
+            high = (byte)(this.cPUMemoryMap[this.operand + this.x + 1]);
+            return this.cPUMemoryMap[low | (high << 8)];
         }
 
         private int IndirectY() {
+            //IndirectY is similar to XIndirect, with that difference that the X-register isn't used and the value in the Y-register
+            //is added to the address of the Indirect part.
+            //E.g. If Y contains the value 15 then LDA($10),Y will lookup the values from $0010 and $0011.
+            //If $0010 contains 20 and $0010 contains 10. Then 15 (Y-Value) is added to $1020, loading the content from $1035 into the AC
             byte low = (byte)(this.cPUMemoryMap[++pc]);
-            byte high = (byte)(this.cPUMemoryMap[++pc]);
+            byte high = 0b0000;
             this.operand = (ushort)(low | (high << 8));
-            
             this.instructionDetails.Operand = $"({operand:X2}),Y";
-            return this.operand + y;
+            low = (byte)(this.cPUMemoryMap[this.operand]);
+            high = (byte)(this.cPUMemoryMap[this.operand + 1]);
+            return this.cPUMemoryMap[(low | (high << 8)) + 1];
         }
 
         private void UpdateMemory(AddressingMode addressingMode, int memoryData) {
