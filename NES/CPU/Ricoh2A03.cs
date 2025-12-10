@@ -73,13 +73,20 @@ namespace NES.CPU {
             instructionDetails.Opcode = $"{opcodes:X}";
             switch (opcodes) {
                 case 0x00: BRK(); break;
-                case 0x01: ORA(); break;
+                case 0x01: ORA(AddressingMode.XIndirect); break;
+                case 0x05: ORA(AddressingMode.ZeroPage); break;
                 case 0x06: ASL(AddressingMode.ZeroPage); break;
-                case 0x0A: ASL(AddressingMode.Accumulator); break;
-                case 0x0E: ASL(AddressingMode.Absolute); break;
+                case 0x09: ORA(AddressingMode.Immediate); break;
+                case 0x0a: ASL(AddressingMode.Accumulator); break;
+                case 0x0d: ORA(AddressingMode.Absolute); break;
+                case 0x0e: ASL(AddressingMode.Absolute); break;
                 case 0x10: BPL(); break;
+                case 0x11: ORA(AddressingMode.IndirectY); break;
+                case 0x15: ORA(AddressingMode.ZeroPageX); break;
                 case 0x16: ASL(AddressingMode.ZeroPageX); break;
-                case 0x1E: ASL(AddressingMode.AbsoluteX); break;
+                case 0x19: ORA(AddressingMode.AbsoluteY); break;
+                case 0x1d: ORA(AddressingMode.AbsoluteX); break;
+                case 0x1e: ASL(AddressingMode.AbsoluteX); break;
                 case 0x21: AND(AddressingMode.XIndirect); break;
                 case 0x25: AND(AddressingMode.ZeroPage); break;
                 case 0x29: AND(AddressingMode.Immediate); break;
@@ -802,9 +809,39 @@ namespace NES.CPU {
             // Does nothing
         }
 
-        public void ORA() {
+        public void ORA(NES.CPU.AddressingMode addressingMode) {
             this.instructionDetails.Instruction = "ORA";
-            throw new NotImplementedException();
+            int data;
+            switch (addressingMode) {
+                case AddressingMode.Immediate:
+                    data = Immediate();
+                    break;
+                case AddressingMode.ZeroPage:
+                    data = ZeroPage();
+                    break;
+                case AddressingMode.ZeroPageX:
+                    data = ZeroPageX();
+                    break;
+                case AddressingMode.Absolute:
+                    data = Absolute();
+                    break;
+                case AddressingMode.AbsoluteX:
+                    data = AbsoluteX();
+                    break;
+                case AddressingMode.AbsoluteY:
+                    data = AbsoluteY();
+                    break;
+                case AddressingMode.XIndirect:
+                    data = XIndirect();
+                    break;
+                case AddressingMode.IndirectY:
+                    data = IndirectY();
+                    break;
+                default:
+                    throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
+            }
+
+            this.ac = (Byte)(ac | data);
         }
 
         public void PHA() {
