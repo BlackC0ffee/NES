@@ -90,8 +90,13 @@ namespace NES.CPU {
                 case 0x35: AND(AddressingMode.ZeroPageX); break;
                 case 0x39: AND(AddressingMode.AbsoluteY); break;
                 case 0x3d: AND(AddressingMode.AbsoluteX); break;
+                case 0x46: LSR(AddressingMode.ZeroPage); break;
+                case 0x4a: LSR(AddressingMode.Accumulator); break;
                 case 0x4c: JMP(AddressingMode.Absolute); break;
+                case 0x4e: LSR(AddressingMode.Absolute); break;
                 case 0x50: BVC(); break;
+                case 0x56: LSR(AddressingMode.ZeroPageX); break;
+                case 0x5e: LSR(AddressingMode.Accumulator); break;
                 case 0x61: ADC(AddressingMode.XIndirect); break;
                 case 0x65: ADC(AddressingMode.ZeroPage); break;
                 case 0x69: ADC(AddressingMode.Immediate); break;
@@ -638,7 +643,7 @@ namespace NES.CPU {
 
         public void INY() {
             this.instructionDetails.Instruction = "INY";
-            throw new NotImplementedException();
+            this.y++;
         }
 
         public void JMP(NES.CPU.AddressingMode addressingMode) {
@@ -754,9 +759,41 @@ namespace NES.CPU {
             }
         }
 
-        public void LSR() {
+        public void LSR(NES.CPU.AddressingMode addressingMode) {
             this.instructionDetails.Instruction = "LSR";
-            throw new NotImplementedException();
+            int data;
+            switch (addressingMode) {
+                case AddressingMode.Accumulator:
+                    data = this.ac;
+                    break;
+                case AddressingMode.ZeroPage:
+                    data = ZeroPage();
+                    break;
+                case AddressingMode.ZeroPageX:
+                    data = ZeroPageX();
+                    break;
+                case AddressingMode.Absolute:
+                    data = Absolute();
+                    break;
+                case AddressingMode.AbsoluteX:
+                    data = AbsoluteX();
+                    break;
+                default:
+                    throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
+            }
+
+            //First set the carry flag based on the lsb:
+            if((data & 0b00000001) == 1) {
+                SetCarryFlag();
+            } else {
+                ClearCarryFlag();
+            }
+
+            //Next perform the left shift
+            data = data >> 1;
+
+            //Finaly we will save the value
+            UpdateMemory(addressingMode, data);
         }
 
         public void NOP() {
@@ -1065,6 +1102,9 @@ namespace NES.CPU {
 
         private void UpdateMemory(AddressingMode addressingMode, int memoryData) {
             switch (addressingMode) {
+                case AddressingMode.Accumulator:
+                    this.ac = (Byte)memoryData;
+                    break;
                 case AddressingMode.ZeroPage:
                     this.cPUMemoryMap[this.operand] = (byte)memoryData;
                     break;

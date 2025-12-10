@@ -62,7 +62,7 @@ namespace NES.CPU
         void LDA(NES.CPU.AddressingMode addressingMode); //load accumulator
         void LDX(NES.CPU.AddressingMode addressingMode); //load X
         void LDY(NES.CPU.AddressingMode addressingMode); //load Y
-        void LSR(); //logical shift right
+        void LSR(NES.CPU.AddressingMode addressingMode); //logical shift right
         void NOP(); //no operation
         void ORA(); //or with accumulator
         void PHA(); //push accumulator
