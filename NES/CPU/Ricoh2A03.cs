@@ -147,6 +147,7 @@ namespace NES.CPU {
                 case 0xdd: CMP(AddressingMode.AbsoluteX); break;
                 case 0xde: DEC(AddressingMode.AbsoluteX); break;
                 case 0xe8: INX(); break;
+                case 0xea: NOP(); break;
                 case 0xf0: BEQ(); break;
                 default: throw new NotImplementedException($"Instruction with opcode {opcodes:X} not found"); break;
             }
@@ -798,7 +799,7 @@ namespace NES.CPU {
 
         public void NOP() {
             this.instructionDetails.Instruction = "NOP";
-            throw new NotImplementedException();
+            // Does nothing
         }
 
         public void ORA() {
