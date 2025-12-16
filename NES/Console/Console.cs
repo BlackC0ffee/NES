@@ -15,6 +15,7 @@ namespace NES.Console
     public delegate void CPUStepEventHandler(object sender, InstructionEventArgs e);
     internal class Console {
         private NES.CPU.Ricoh2A03 cpu;
+        private NES.PPU.Ricoh2C02 ppu;
         public string DebugOutput { get; set; }
         private Cartridge cartridge {  get; set; }
         //Cartridge c = new NES.Console.Cartridge(ofd.FileName);
@@ -26,6 +27,7 @@ namespace NES.Console
             this.cpu = new CPU.Ricoh2A03(cartridge);
             this.cpu.InstructionExecuted += cpu_InstructionExecuted;
 
+            this.ppu = new PPU.Ricoh2C02(cartridge);
         }
 
         private void cpu_InstructionExecuted(object sender, InstructionEventArgs e) {
@@ -41,7 +43,13 @@ namespace NES.Console
         }
 
         public void Run() {
-            this.cpu.Run();
+            bool brk = true;
+            while (!brk) {
+                this.cpu.Step();
+                this.ppu.Step();
+            }
+
+                
         }
     }
 

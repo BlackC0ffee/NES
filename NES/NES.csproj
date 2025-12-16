@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <Folder Include="APU\" />
-    <Folder Include="PPU\" />
     <Folder Include="RAM\" />
   </ItemGroup>
 

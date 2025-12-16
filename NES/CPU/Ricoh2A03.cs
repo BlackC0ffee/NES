@@ -205,19 +205,18 @@ namespace NES.CPU {
                 //cPUMemoryMap[0xfffc];
         }
 
-        public void Run() {
-            while (!brk){
-                ExecuteInstruction(cPUMemoryMap[pc]);
-                InstructionExecuted(this, instructionDetails);
-                instructionDetails.Clear();
-                //brk = true;
-                // to check Status Register functions operand bytes
+        public void Step() {
+            ExecuteInstruction(cPUMemoryMap[pc]);
+            InstructionExecuted(this, instructionDetails);
+            instructionDetails.Clear();
+            //brk = true;
+            // to check Status Register functions operand bytes
 
-                //do {
-                //    pc = 65535;
-                //    pc++;
-                //} while (pc < 65535); Should never happen I think thanks to bank switching...
-            }
+            //do {
+            //    pc = 65535;
+            //    pc++;
+            //} while (pc < 65535); Should never happen I think thanks to bank switching...
+
         }
 
         #region Status Register functions (sr)
