@@ -19,12 +19,12 @@ namespace NES.CPU {
 
     public delegate void InstructionExecutedEventHandler(object sender, CPU.InstructionEventArgs e);
     internal class Ricoh2A03 : NES.CPU.IMOS6502 {
-        //private NES.RAM.Memory memory;
+        private NES.CPU.CPUMemoryMap cpuMemoryMap;
 
         // Instruction set shizzle
         //     https://www.masswerk.at/6502/6502_instruction_set.html
         //     http://www.6502.org/users/obelisk/6502/reference.html
-        
+
         // Registers
         private UInt16 pc; // 16bit or 2 byte program counter. Technically these are 2 seperate program counters on the IMOS6502: https://stackoverflow.com/questions/46646929/how-do-the-two-program-counter-registers-work-in-the-6502
         private Byte ac; // accumulator
@@ -37,7 +37,7 @@ namespace NES.CPU {
         private ulong CpuCycleCounter;
 
 
-        private NES.CPU.CPUMemoryMap cPUMemoryMap;
+        
         //public event Instrct
 
         // Variables
@@ -50,15 +50,16 @@ namespace NES.CPU {
         public event InstructionExecutedEventHandler InstructionExecuted;
         private InstructionEventArgs instructionDetails;
 
-        public Ricoh2A03(NES.Console.Cartridge cartridge) {
-            this.cartridge = cartridge;
-            cPUMemoryMap = new CPUMemoryMap(this.cartridge);
+        public Ricoh2A03(NES.CPU.CPUMemoryMap cpuMemoryMap) {
+            this.cpuMemoryMap = cpuMemoryMap;
+
             instructionDetails = new InstructionEventArgs();
             sr = 0b00100000; // bit 5 has no name and is always set to 1
             //this.Reset();
             CpuCycleCounter = 0;
             brk = false;
-            pc = (ushort)(this.cPUMemoryMap[0xfffc] | (this.cPUMemoryMap[0xfffd] << 8)); // Mapper 0
+            sp = 0xff;
+            pc = (ushort)(this.cpuMemoryMap[0xfffc] | (this.cpuMemoryMap[0xfffd] << 8)); // Mapper 0
             //this.Run();
         }
 
@@ -201,12 +202,12 @@ namespace NES.CPU {
 @vblankwait2:
                 bit $2002
         bpl @vblankwait2 **/
-            pc = (ushort)(this.cPUMemoryMap[0xfffc] | (this.cPUMemoryMap[0xfffd] << 8));
+            pc = (ushort)(this.cpuMemoryMap[0xfffc] | (this.cpuMemoryMap[0xfffd] << 8));
                 //cPUMemoryMap[0xfffc];
         }
 
         public void Step() {
-            ExecuteInstruction(cPUMemoryMap[pc]);
+            ExecuteInstruction(cpuMemoryMap[pc]);
             InstructionExecuted(this, instructionDetails);
             instructionDetails.Clear();
             //brk = true;
@@ -443,7 +444,7 @@ namespace NES.CPU {
                     break;
                 case AddressingMode.Absolute:
                     operAnd = Absolute();
-                    Byte operand = cPUMemoryMap[operAnd];
+                    Byte operand = cpuMemoryMap[operAnd];
                     if((this.ac & operand) == 0) { SetZeroFlag(); }
                     this.sp = (Byte)(operand | 0b11000000); // this checks bit 7 and 6 and place the overflow and negative flag. (I don't really understand why, so this could be buggy) 
                     this.CpuCycleCounter += 4;
@@ -694,24 +695,24 @@ namespace NES.CPU {
                     break;
                 case AddressingMode.Absolute:
                     data = Absolute();
-                    this.ac = cPUMemoryMap[data];
+                    this.ac = cpuMemoryMap[data];
                     this.CpuCycleCounter += 4;
                     break;
                 case AddressingMode.AbsoluteX:
                     data = AbsoluteX();
-                    this.ac = cPUMemoryMap[data];
+                    this.ac = cpuMemoryMap[data];
                     break;
                 case AddressingMode.AbsoluteY:
                     data = AbsoluteY();
-                    this.ac = cPUMemoryMap[data];
+                    this.ac = cpuMemoryMap[data];
                     break;
                 case AddressingMode.XIndirect:
                     data = XIndirect();
-                    this.ac = cPUMemoryMap[data];
+                    this.ac = cpuMemoryMap[data];
                     break;
                 case AddressingMode.IndirectY:
                     data = IndirectY();
-                    this.ac = cPUMemoryMap[data];
+                    this.ac = cpuMemoryMap[data];
                     break;
                 default:
                     throw new ArgumentException($"Invalid addressing mode: {addressingMode}");
@@ -845,7 +846,8 @@ namespace NES.CPU {
 
         public void PHA() {
             this.instructionDetails.Instruction = "PHA";
-            throw new NotImplementedException();
+            this.operand = (ushort)(sp-- | (0b0001 << 8));
+            UpdateMemory(AddressingMode.Immediate, this.ac);
         }
 
         public void PHP() {
@@ -894,7 +896,7 @@ namespace NES.CPU {
             switch (addressingMode) {
                 case AddressingMode.ZeroPage:
                     operand = ZeroPage();
-                    cPUMemoryMap[operand] = ac;
+                    cpuMemoryMap[operand] = ac;
                     this.CpuCycleCounter += 3;
                     break;
                 case AddressingMode.ZeroPageX:
@@ -902,12 +904,12 @@ namespace NES.CPU {
                     break;
                 case AddressingMode.Absolute:
                     operand = Absolute();
-                    this.cPUMemoryMap[operand] = this.ac;
+                    this.cpuMemoryMap[operand] = this.ac;
                     this.CpuCycleCounter += 4;
                     break;
                 case AddressingMode.AbsoluteX:
                     operand = AbsoluteX();
-                    cPUMemoryMap[operand] = this.ac;
+                    cpuMemoryMap[operand] = this.ac;
                     this.CpuCycleCounter += 5;
                     break;
                 case AddressingMode.AbsoluteY:
@@ -936,7 +938,7 @@ namespace NES.CPU {
                     break;
                 case AddressingMode.Absolute:
                     operAnd = Absolute();
-                    this.cPUMemoryMap[operAnd] = this.x;
+                    this.cpuMemoryMap[operAnd] = this.x;
                     this.CpuCycleCounter += 4;
                     break;
                 default:
@@ -1027,7 +1029,7 @@ namespace NES.CPU {
         private int Immediate() {
             //Immediate: The value at the rom address equals the the instruction value.
             //E.g LDA #07 Loads 07 into AC
-            byte low = this.cPUMemoryMap[++pc];
+            byte low = this.cpuMemoryMap[++pc];
             byte high = 0b0000;
             this.operand = (ushort)(low | (high << 8));
             this.instructionDetails.Operand = $"#{operand:X2}";
@@ -1037,33 +1039,33 @@ namespace NES.CPU {
         private int Absolute() {
             //Absolute provides a 16-bit address from a memory location
             //E.g. LDA $1020 loads the data @ address $1020 to AC (e.g. FF)
-            byte low = this.cPUMemoryMap[++pc];
-            byte high = this.cPUMemoryMap[++pc];
+            byte low = this.cpuMemoryMap[++pc];
+            byte high = this.cpuMemoryMap[++pc];
             this.operand = (ushort)(low | (high << 8));
             this.instructionDetails.Operand = $"${operand:X4}";
-            return this.cPUMemoryMap[this.operand];
+            return this.cpuMemoryMap[this.operand];
         }
 
         private int AbsoluteX() {
             //AbsoluteX is similar to Absolute, but adds the value from the x-register to the operand to define the address
             //E.g. if X contains 15 and we run the instruction LDA $1020, than the data will be loaded from $1035 to the AC
-            byte low = this.cPUMemoryMap[++pc];
-            byte high = this.cPUMemoryMap[++pc];
+            byte low = this.cpuMemoryMap[++pc];
+            byte high = this.cpuMemoryMap[++pc];
             this.operand = (ushort)(low | (high << 8));
 
             this.instructionDetails.Operand = $"${operand:X4},X";
-            return this.cPUMemoryMap[this.operand + this.x];
+            return this.cpuMemoryMap[this.operand + this.x];
         }
 
         private int AbsoluteY() {
             //AbsoluteY is similar to Absolute, but adds the value from the x-register to the operand to define the address
             //E.g. if Y contains 15 and we run the instruction LDA $1020, than the data will be loaded from $1035 to the AC
-            byte low = this.cPUMemoryMap[++pc];
-            byte high = this.cPUMemoryMap[++pc];
+            byte low = this.cpuMemoryMap[++pc];
+            byte high = this.cpuMemoryMap[++pc];
             this.operand = (ushort)(low | (high << 8));
 
             this.instructionDetails.Operand = $"${operand:X4},Y";
-            return this.cPUMemoryMap[operand + this.y];
+            return this.cpuMemoryMap[operand + this.y];
         }
 
         private int ZeroPage() {
@@ -1071,24 +1073,24 @@ namespace NES.CPU {
             //Because this is in the 256 range of the memory map. the high-byte is 00 and dont require an increment of the program counter.
             //This makes this location "faster" to access as it require one CPU cycle less
             //E.g. LDA $10 loads the data @ address $0010 to the AC
-            byte low = this.cPUMemoryMap[++pc];
+            byte low = this.cpuMemoryMap[++pc];
             byte high = 0b0000;
             this.operand = (ushort)(low | (high << 8));
             this.instructionDetails.Operand = $"${this.operand:X2}";
-            return this.cPUMemoryMap[this.operand];
+            return this.cpuMemoryMap[this.operand];
         }
         private int ZeroPageX() {
             //ZeroPageX is similar to ZeroPage in combination with AbsoluteX where the X register data is added to the operand
             //E.g. if X contains the value 15, then LDA $10,X loads the data from $0025 into the AC
-            byte low = this.cPUMemoryMap[++pc];
+            byte low = this.cpuMemoryMap[++pc];
             byte high = 0b0000;
             this.operand = (ushort)(low | (high << 8));
             this.instructionDetails.Operand = $"${this.operand:X2},X";
-            return this.cPUMemoryMap[this.operand + this.x];
+            return this.cpuMemoryMap[this.operand + this.x];
         }
 
         private int Relative() {
-            sbyte operand = (sbyte)this.cPUMemoryMap[++pc];
+            sbyte operand = (sbyte)this.cpuMemoryMap[++pc];
             this.instructionDetails.Operand = $"${operand:X2}";
             return operand;
         }
@@ -1097,13 +1099,13 @@ namespace NES.CPU {
             //Indirect, uses the content of the address and the next adress to find the effective address.
             //Note: only JMP uses this function
             //E.g. JMP ($1020). If Address $1020 has value FF and adress $1021 has 15. Then the program counter wil become 15FF
-            byte low = (byte)(this.cPUMemoryMap[++pc]);
-            byte high = (byte)(this.cPUMemoryMap[++pc]);
+            byte low = (byte)(this.cpuMemoryMap[++pc]);
+            byte high = (byte)(this.cpuMemoryMap[++pc]);
             this.operand = (ushort)(low | (high << 8));
             this.instructionDetails.Operand = $"({operand:X4})";
             
-            low = (byte)(this.cPUMemoryMap[this.operand]);
-            high = (byte)(this.cPUMemoryMap[this.operand + 1]);
+            low = (byte)(this.cpuMemoryMap[this.operand]);
+            high = (byte)(this.cpuMemoryMap[this.operand + 1]);
             //TODO: add operand overflow bug where eg 20FF becomes 2000 instead of 2100
             return (low | (high << 8));
         }
@@ -1113,28 +1115,28 @@ namespace NES.CPU {
             //Once the "operand" is formed using the same method as ZeroPageX, a lookup is performed like Indirect
             //E.g. if X contains the value 15, then LDA ($10,X) gets the address is looked up in $0025 and $0026.
             //If $0025 contains 20 and $0026 contains 10. Then the data from $1020 will be loaded into the AC
-            byte low = (byte)(this.cPUMemoryMap[++pc + this.x]);
+            byte low = (byte)(this.cpuMemoryMap[++pc + this.x]);
             byte high = 0b0000;
             this.operand = (ushort)(low | (high << 8));
             this.instructionDetails.Operand = $"({operand:X2},X)";
 
-            low = (byte)(this.cPUMemoryMap[this.operand] + this.x);
-            high = (byte)(this.cPUMemoryMap[this.operand + this.x + 1]);
-            return this.cPUMemoryMap[low | (high << 8)];
+            low = (byte)(this.cpuMemoryMap[this.operand] + this.x);
+            high = (byte)(this.cpuMemoryMap[this.operand + this.x + 1]);
+            return this.cpuMemoryMap[low | (high << 8)];
         }
 
         private int IndirectY() {
             //IndirectY is similar to XIndirect, with that difference that the X-register isn't used and the value in the Y-register
             //is added to the address of the Indirect part.
             //E.g. If Y contains the value 15 then LDA($10),Y will lookup the values from $0010 and $0011.
-            //If $0010 contains 20 and $0010 contains 10. Then 15 (Y-Value) is added to $1020, loading the content from $1035 into the AC
-            byte low = (byte)(this.cPUMemoryMap[++pc]);
+            //If $0010 contains 20 and $0011 contains 10. Then 15 (Y-Value) is added to $1020, loading the content from $1035 into the AC
+            byte low = (byte)(this.cpuMemoryMap[++pc]);
             byte high = 0b0000;
             this.operand = (ushort)(low | (high << 8));
             this.instructionDetails.Operand = $"({operand:X2}),Y";
-            low = (byte)(this.cPUMemoryMap[this.operand]);
-            high = (byte)(this.cPUMemoryMap[this.operand + 1]);
-            return this.cPUMemoryMap[(low | (high << 8)) + 1];
+            low = (byte)(this.cpuMemoryMap[this.operand]);
+            high = (byte)(this.cpuMemoryMap[this.operand + 1]);
+            return this.cpuMemoryMap[(low | (high << 8)) + 1];
         }
 
         private void UpdateMemory(AddressingMode addressingMode, int memoryData) {
@@ -1143,10 +1145,10 @@ namespace NES.CPU {
                     this.ac = (Byte)memoryData;
                     break;
                 case AddressingMode.ZeroPage:
-                    this.cPUMemoryMap[this.operand] = (byte)memoryData;
+                    this.cpuMemoryMap[this.operand] = (byte)memoryData;
                     break;
                 case AddressingMode.ZeroPageX:
-                    this.cPUMemoryMap[this.operand+this.x] = (byte)memoryData;
+                    this.cpuMemoryMap[this.operand+this.x] = (byte)memoryData;
                     break;
                 case AddressingMode.Absolute:
                     throw new NotImplementedException();
