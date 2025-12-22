@@ -102,6 +102,7 @@ namespace NES.CPU {
                 case 0x4a: LSR(AddressingMode.Accumulator); break;
                 case 0x4c: JMP(AddressingMode.Absolute); break;
                 case 0x4e: LSR(AddressingMode.Absolute); break;
+                case 0x48: PHA(); break;
                 case 0x50: BVC(); break;
                 case 0x56: LSR(AddressingMode.ZeroPageX); break;
                 case 0x5e: LSR(AddressingMode.Accumulator); break;
