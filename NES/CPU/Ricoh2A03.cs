@@ -77,6 +77,7 @@ namespace NES.CPU {
                 case 0x01: ORA(AddressingMode.XIndirect); break;
                 case 0x05: ORA(AddressingMode.ZeroPage); break;
                 case 0x06: ASL(AddressingMode.ZeroPage); break;
+                case 0x08: PHP(); break;
                 case 0x09: ORA(AddressingMode.Immediate); break;
                 case 0x0a: ASL(AddressingMode.Accumulator); break;
                 case 0x0d: ORA(AddressingMode.Absolute); break;
@@ -853,7 +854,8 @@ namespace NES.CPU {
 
         public void PHP() {
             this.instructionDetails.Instruction = "PHP";
-            throw new NotImplementedException();
+            this.operand = (ushort)(sp-- | (0b0001 << 8));
+            UpdateMemory(AddressingMode.Immediate, this.pc);
         }
 
         public void PLA() {
