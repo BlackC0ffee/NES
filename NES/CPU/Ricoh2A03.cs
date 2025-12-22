@@ -91,6 +91,7 @@ namespace NES.CPU {
                 case 0x1e: ASL(AddressingMode.AbsoluteX); break;
                 case 0x21: AND(AddressingMode.XIndirect); break;
                 case 0x25: AND(AddressingMode.ZeroPage); break;
+                case 0x28: PLP(); break;
                 case 0x29: AND(AddressingMode.Immediate); break;
                 case 0x30: BMI(); break;
                 case 0x2c: BIT(AddressingMode.Absolute); break;
@@ -867,7 +868,8 @@ namespace NES.CPU {
 
         public void PLP() {
             this.instructionDetails.Instruction = "PLP";
-            throw new NotImplementedException();
+            this.operand = (ushort)(++sp | (0b0001 << 8));
+            this.pc = cpuMemoryMap[this.operand];
         }
 
         public void ROL() {
