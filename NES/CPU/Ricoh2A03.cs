@@ -109,6 +109,7 @@ namespace NES.CPU {
                 case 0x5e: LSR(AddressingMode.Accumulator); break;
                 case 0x61: ADC(AddressingMode.XIndirect); break;
                 case 0x65: ADC(AddressingMode.ZeroPage); break;
+                case 0x68: PLA(); break;
                 case 0x69: ADC(AddressingMode.Immediate); break;
                 case 0x6D: ADC(AddressingMode.Absolute); break;
                 case 0x70: BVS(); break;
@@ -860,7 +861,8 @@ namespace NES.CPU {
 
         public void PLA() {
             this.instructionDetails.Instruction = "PLA";
-            throw new NotImplementedException();
+            this.operand = (ushort)(++sp | (0b0001 << 8));
+            ac = cpuMemoryMap[this.operand];
         }
 
         public void PLP() {
